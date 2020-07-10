@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 @EnableDiscoveryClient
 @EnableFeignClients
 @SpringBootApplication
-@EnableHystrixDashboard
 @ComponentScan(basePackages={"com.zz.framework.api"})//扫描接口
 @ComponentScan(basePackages={"com.zz"})
 @ComponentScan(basePackages={"com.zz.framework"})//扫描common下的所有类
