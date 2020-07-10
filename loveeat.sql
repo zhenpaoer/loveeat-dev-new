@@ -10,109 +10,10 @@ Target Server Type    : MYSQL
 Target Server Version : 50725
 File Encoding         : 65001
 
-Date: 2020-07-10 10:46:40
+Date: 2020-07-10 17:54:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for es_member
--- ----------------------------
-DROP TABLE IF EXISTS `es_member`;
-CREATE TABLE `es_member` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '会员id',
-  `member_name` varchar(30) DEFAULT NULL COMMENT '会员名',
-  `password` varchar(255) DEFAULT NULL COMMENT '密码',
-  `email` varchar(50) DEFAULT NULL COMMENT '电子邮箱',
-  `sex` tinyint(1) DEFAULT NULL COMMENT '性别 1男0女',
-  `mobile` varchar(20) DEFAULT NULL COMMENT '手机号',
-  `birthday` date DEFAULT NULL COMMENT '出生日',
-  `createTime` datetime DEFAULT NULL COMMENT '注册日期',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of es_member
--- ----------------------------
-INSERT INTO `es_member` VALUES ('1', '哈哈', '1', '111', '1', '1111', '2018-12-13', '2018-12-13 14:27:38');
-
--- ----------------------------
--- Table structure for es_member_role
--- ----------------------------
-DROP TABLE IF EXISTS `es_member_role`;
-CREATE TABLE `es_member_role` (
-  `id` int(11) NOT NULL COMMENT '主键',
-  `member_id` int(11) DEFAULT NULL COMMENT '会员id',
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of es_member_role
--- ----------------------------
-INSERT INTO `es_member_role` VALUES ('1', '1', '1');
-
--- ----------------------------
--- Table structure for es_permission
--- ----------------------------
-DROP TABLE IF EXISTS `es_permission`;
-CREATE TABLE `es_permission` (
-  `id` int(11) NOT NULL COMMENT '权限id',
-  `method` varchar(10) DEFAULT NULL COMMENT '方法类型',
-  `zuul_prefix` varchar(30) DEFAULT NULL COMMENT '网关前缀',
-  `service_prefix` varchar(30) DEFAULT NULL COMMENT '服务前缀',
-  `uri` varchar(100) DEFAULT NULL COMMENT '请求路径',
-  `createTime` datetime DEFAULT NULL COMMENT '创建日期',
-  `updateTime` datetime DEFAULT NULL COMMENT '更新日期',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of es_permission
--- ----------------------------
-INSERT INTO `es_permission` VALUES ('1', 'GET', '/api', '/auth', 'exit', '2018-12-14 09:45:35', '2018-12-14 09:45:37');
-INSERT INTO `es_permission` VALUES ('2', 'GET', '/api', '/auth', 'member', '2018-12-17 13:23:25', '2018-12-17 13:23:27');
-INSERT INTO `es_permission` VALUES ('3', 'GET', '/api', '/member', 'hello', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
-INSERT INTO `es_permission` VALUES ('4', 'GET', '/api', '/member', 'current', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
-INSERT INTO `es_permission` VALUES ('5', 'GET', '/api', '/member', 'query', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
-
--- ----------------------------
--- Table structure for es_role
--- ----------------------------
-DROP TABLE IF EXISTS `es_role`;
-CREATE TABLE `es_role` (
-  `id` int(11) NOT NULL COMMENT '角色id',
-  `role_name` varchar(50) DEFAULT NULL COMMENT '角色名称',
-  `valid` tinyint(1) DEFAULT NULL COMMENT '是否有效 1是 0否',
-  `createTime` datetime DEFAULT NULL COMMENT '创建日期',
-  `updateTime` datetime DEFAULT NULL COMMENT '更新日期',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of es_role
--- ----------------------------
-INSERT INTO `es_role` VALUES ('1', 'ROLE_ADMIN', '1', '2018-12-14 09:46:01', '2018-12-14 09:46:03');
-INSERT INTO `es_role` VALUES ('2', 'ROLE_USER', '1', '2018-12-14 09:46:16', '2018-12-14 09:46:18');
-
--- ----------------------------
--- Table structure for es_role_permission
--- ----------------------------
-DROP TABLE IF EXISTS `es_role_permission`;
-CREATE TABLE `es_role_permission` (
-  `id` int(11) NOT NULL COMMENT '主键',
-  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
-  `permission_id` int(11) DEFAULT NULL COMMENT '权限id',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-
--- ----------------------------
--- Records of es_role_permission
--- ----------------------------
-INSERT INTO `es_role_permission` VALUES ('1', '1', '1');
-INSERT INTO `es_role_permission` VALUES ('2', '1', '2');
-INSERT INTO `es_role_permission` VALUES ('4', '1', '4');
-INSERT INTO `es_role_permission` VALUES ('5', '1', '5');
 
 -- ----------------------------
 -- Table structure for le_business
@@ -191,6 +92,30 @@ INSERT INTO `le_foodtype` VALUES ('9', '9', '饮料');
 INSERT INTO `le_foodtype` VALUES ('10', '10', '甜品');
 
 -- ----------------------------
+-- Table structure for le_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `le_permission`;
+CREATE TABLE `le_permission` (
+  `id` int(11) NOT NULL COMMENT '权限id',
+  `method` varchar(10) DEFAULT NULL COMMENT '方法类型',
+  `zuul_prefix` varchar(30) DEFAULT NULL COMMENT '网关前缀',
+  `service_prefix` varchar(30) DEFAULT NULL COMMENT '服务前缀',
+  `uri` varchar(100) DEFAULT NULL COMMENT '请求路径',
+  `createTime` datetime DEFAULT NULL COMMENT '创建日期',
+  `updateTime` datetime DEFAULT NULL COMMENT '更新日期',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of le_permission
+-- ----------------------------
+INSERT INTO `le_permission` VALUES ('1', 'GET', '/api', '/auth', 'exit', '2018-12-14 09:45:35', '2018-12-14 09:45:37');
+INSERT INTO `le_permission` VALUES ('2', 'GET', '/api', '/auth', 'member', '2018-12-17 13:23:25', '2018-12-17 13:23:27');
+INSERT INTO `le_permission` VALUES ('3', 'GET', '/api', '/member', 'hello', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
+INSERT INTO `le_permission` VALUES ('4', 'GET', '/api', '/member', 'current', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
+INSERT INTO `le_permission` VALUES ('5', 'GET', '/api', '/member', 'query', '2018-12-17 13:23:25', '2018-12-17 13:23:25');
+
+-- ----------------------------
 -- Table structure for le_product
 -- ----------------------------
 DROP TABLE IF EXISTS `le_product`;
@@ -267,22 +192,43 @@ INSERT INTO `le_product_picurl` VALUES ('12', '1', 'http://149.248.8.106:9000/lo
 INSERT INTO `le_product_picurl` VALUES ('13', '1', 'http://149.248.8.106:9000/loveeat-dev-pro/pid_1_1594014039495_1.jpg');
 
 -- ----------------------------
--- Table structure for le_user_auths
+-- Table structure for le_role
 -- ----------------------------
-DROP TABLE IF EXISTS `le_user_auths`;
-CREATE TABLE `le_user_auths` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `identity_type` varchar(255) DEFAULT NULL COMMENT ' 登录类型（手机号 邮箱 用户名）或第三方应用名称（微信 微博等）',
-  `identifier` varchar(255) DEFAULT NULL COMMENT '标识（手机号 邮箱 用户名或第三方应用的唯一标识）',
-  `credential` varchar(255) DEFAULT NULL COMMENT '密码凭证（站内的保存密码，站外的不保存或保存token）',
-  `lastlogintime` datetime DEFAULT NULL COMMENT '上次登录时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `le_role`;
+CREATE TABLE `le_role` (
+  `id` int(11) NOT NULL COMMENT '角色id',
+  `role_name` varchar(50) DEFAULT NULL COMMENT '角色名称',
+  `valid` tinyint(1) DEFAULT NULL COMMENT '是否有效 1是 0否',
+  `createTime` datetime DEFAULT NULL COMMENT '创建日期',
+  `updateTime` datetime DEFAULT NULL COMMENT '更新日期',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of le_user_auths
+-- Records of le_role
 -- ----------------------------
+INSERT INTO `le_role` VALUES ('1', 'ROLE_ADMIN', '1', '2018-12-14 09:46:01', '2018-12-14 09:46:03');
+INSERT INTO `le_role` VALUES ('2', 'ROLE_USER', '1', '2018-12-14 09:46:16', '2018-12-14 09:46:18');
+
+-- ----------------------------
+-- Table structure for le_role_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `le_role_permission`;
+CREATE TABLE `le_role_permission` (
+  `id` int(11) NOT NULL COMMENT '主键',
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  `permission_id` int(11) DEFAULT NULL COMMENT '权限id',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of le_role_permission
+-- ----------------------------
+INSERT INTO `le_role_permission` VALUES ('1', '1', '1');
+INSERT INTO `le_role_permission` VALUES ('2', '1', '2');
+INSERT INTO `le_role_permission` VALUES ('5', '1', '5');
+INSERT INTO `le_role_permission` VALUES ('6', '2', '1');
+INSERT INTO `le_role_permission` VALUES ('7', '2', '3');
 
 -- ----------------------------
 -- Table structure for le_user_bak
@@ -321,12 +267,34 @@ CREATE TABLE `le_user_basic` (
   `avatar` varchar(255) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL COMMENT '状态',
   `createtime` datetime DEFAULT NULL COMMENT '创建时间',
+  `username` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `phone` varchar(11) DEFAULT NULL,
+  `updatetime` datetime DEFAULT NULL,
+  `userpic` varchar(255) DEFAULT NULL COMMENT '头像',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of le_user_basic
 -- ----------------------------
+INSERT INTO `le_user_basic` VALUES ('1', 'aaa', null, null, '2020-07-10 17:53:55', 'zhangsan', null, '13691386065', '2020-07-10 17:54:03', null);
+
+-- ----------------------------
+-- Table structure for le_user_role
+-- ----------------------------
+DROP TABLE IF EXISTS `le_user_role`;
+CREATE TABLE `le_user_role` (
+  `id` int(11) NOT NULL COMMENT '主键',
+  `user_id` int(11) DEFAULT NULL COMMENT '会员id',
+  `role_id` int(11) DEFAULT NULL COMMENT '角色id',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of le_user_role
+-- ----------------------------
+INSERT INTO `le_user_role` VALUES ('1', '1', '1');
 
 -- ----------------------------
 -- Table structure for oauth_access_token
