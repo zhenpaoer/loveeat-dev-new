@@ -19,7 +19,7 @@ spring:
 #          search-locations:  classpath:/config-repo
   cloud:
     config:
-      label: master
+      label: dev-security1
       server:
         git:
           uri: https://github.com/zhenpaoer/loveeat-dev-new.git

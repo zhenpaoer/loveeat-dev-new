@@ -6,7 +6,7 @@ spring:
       uri: http://localhost:9004
       name: base-zipkin
       profile: dev
-      label: master
+      label: dev-security1
   # 解决Zipkin启动The bean 'characterEncodingFilter', defined in
   main:
     allow-bean-definition-overriding: true

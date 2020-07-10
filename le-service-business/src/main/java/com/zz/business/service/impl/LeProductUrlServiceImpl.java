@@ -2,15 +2,12 @@ package com.zz.business.service.impl;/**
  * Created by zhangzhen on 2020/5/18
  */
 
-import ch.qos.logback.classic.pattern.LineOfCallerConverter;
 import com.zz.business.dao.LeProductPicurlMapper;
 import com.zz.business.service.LeProductUrlService;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.ResponseResult;
-import com.zz.framework.domain.business.LeProductMenudetail;
 import com.zz.framework.domain.business.LeProductPicurl;
 import com.zz.framework.domain.business.response.ProductUrlCode;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;

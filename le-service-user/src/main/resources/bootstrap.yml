@@ -1,9 +1,9 @@
 spring:
   application:
-    name: base-zuul
+    name:   le-service-user
   cloud:
     config:
       uri: http://localhost:9004
-      name: base-zuul
+      name: le-service-user
       profile: dev
       label: dev-security1

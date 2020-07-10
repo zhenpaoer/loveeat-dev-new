@@ -6,4 +6,4 @@ spring:
       uri: http://localhost:9004
       name: base-monitor
       profile: dev
-      label: master
+      label: dev-security1

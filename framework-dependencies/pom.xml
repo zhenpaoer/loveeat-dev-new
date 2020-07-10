@@ -32,6 +32,8 @@
         <module>../test-service-provider</module>
         <module>../le-service-business</module>
         <module>../le-service-picture</module>
+        <module>../le-service-user</module>
+        <module>../le-service-auth</module>
 
     </modules>
 
@@ -59,6 +61,7 @@
         <minio>7.0.2</minio>
         <srpingboot-devtool>2.1.2.RELEASE</srpingboot-devtool>
         <logstash-logback.version>4.8</logstash-logback.version>
+        <feign-okhttp.version>8.18.0</feign-okhttp.version>
     </properties>
 
     <dependencies>
@@ -201,6 +204,13 @@
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
                 <version>${logstash-logback.version}</version>
+            </dependency>
+
+            <!-- feign -->
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-okhttp</artifactId>
+                <version>${feign-okhttp.version}</version>
             </dependency>
         </dependencies>
 
