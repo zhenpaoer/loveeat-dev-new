@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.boot.admin.instance.service-base-url",
+      "type": "java.lang.String",
+      "description": "Description for spring.boot.admin.instance.service-base-url."
+  }
+] }

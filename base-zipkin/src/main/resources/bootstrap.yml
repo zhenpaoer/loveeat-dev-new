@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: base-zipkin
+  cloud:
+    config:
+      uri: http://localhost:9004
+      name: base-zipkin
+      profile: dev
+      label: master
+  # 解决Zipkin启动The bean 'characterEncodingFilter', defined in
+  main:
+    allow-bean-definition-overriding: true

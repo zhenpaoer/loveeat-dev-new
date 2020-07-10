@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: le-service-business
+  cloud:
+    config:
+      uri: http://localhost:9004
+      name: le-service-business
+      profile: dev
+      label: master

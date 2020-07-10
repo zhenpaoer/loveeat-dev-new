@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zz.business.dao.LeProductMapper">
+  <resultMap id="BaseResultMap" type="com.zz.framework.domain.business.ext.LeProductPicMenuExt">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="bid"            jdbcType="INTEGER" property="bid" />
+    <result column="businessname"   jdbcType="VARCHAR" property="businessname" />
+    <result column="describ"        jdbcType="VARCHAR" property="describ" />
+    <result column="originalprice"  jdbcType="DECIMAL" property="originalprice" />
+    <result column="bargainprice"   jdbcType="DECIMAL" property="bargainprice" />
+    <result column="bargainpersonsum" jdbcType="INTEGER" property="bargainpersonsum" />
+    <result column="issale"         jdbcType="INTEGER" property="issale" />
+    <result column="version"        jdbcType="INTEGER" property="version" />
+
+    <collection property="children" ofType="com.zz.framework.domain.business.ext.LeProductMenuNode">
+      <id property="id"             jdbcType="INTEGER" column="id"/>
+      <result property="parentid"   jdbcType="INTEGER" column="parentid"/>
+      <result property="title"      jdbcType="VARCHAR" column="title"/>
+      <result property="item"       jdbcType="VARCHAR" column="item"/>
+      <result property="price"      jdbcType="VARCHAR" column="price"/>
+      <collection property="children" ofType="com.zz.framework.domain.business.ext.LeProductMenuNode">
+        <id property="id"             jdbcType="INTEGER" column="id"/>
+        <result property="parentid"   jdbcType="INTEGER" column="parentid"/>
+        <result property="title"      jdbcType="VARCHAR" column="title"/>
+        <result property="item"       jdbcType="VARCHAR" column="item"/>
+        <result property="price"      jdbcType="VARCHAR" column="price"/>
+      </collection>
+    </collection>
+
+  </resultMap>
+
+  <sql id="prodcut">
+      pro.id,
+      businessname,
+      bid,
+      pro.describ,
+      originalprice,
+      bargainprice,
+      bargainpersonsum,
+      issale,
+      version
+  </sql>
+
+  <select id="getAllProductForUser" resultType="com.zz.framework.domain.business.LeProduct">
+      SELECT
+      <include refid="prodcut"/>
+      FROM
+      le_product pro
+      WHERE
+      state = 1 AND `status` = '审核通过'
+
+  </select>
+</mapper>

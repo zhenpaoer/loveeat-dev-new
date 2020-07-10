@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zz.business.dao.LeProductMenudetailMapper">
+  <resultMap id="BaseResultMap" type="com.zz.framework.domain.business.LeProductMenudetail">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="parentid" jdbcType="INTEGER" property="parentid" />
+    <result column="item" jdbcType="VARCHAR" property="item" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+  </resultMap>
+
+  <!-- 树形菜单 -->
+  <resultMap id="menuResultMap" type="com.zz.framework.domain.business.ext.LeProductMenuNode">
+    <id column="aid" jdbcType="INTEGER" property="id"/>
+    <result column="title" jdbcType="VARCHAR" property="title"/>
+    <collection property="children" ofType="com.zz.framework.domain.business.ext.LeProductMenuNode">
+        <id column="bid" jdbcType="INTEGER" property="id"/>
+        <result column="item" jdbcType="VARCHAR" property="item"/>
+        <result column="price" jdbcType="DECIMAL" property="price"/>
+    </collection>
+  </resultMap>
+
+  <select id="getProductMenuByPid" parameterType="java.lang.Integer" resultMap="menuResultMap">
+      SELECT
+      a.id aid,
+      a.title title,
+      b.id bid,
+      b.item item,
+      b.price price
+    FROM
+        le_product_menudetail a
+    LEFT JOIN le_product_menudetail b ON a.id = b.parentid
+    WHERE
+        a.parentid = '0'
+    AND a.pid = #{pid}
+    ORDER BY a.id,b.id;
+  </select>
+</mapper>

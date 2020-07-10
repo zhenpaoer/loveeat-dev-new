@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: test-service-consumer
+  cloud:
+    config:
+      uri: http://localhost:9004
+      name: test-service-consumer
+      profile: dev
+      label: master

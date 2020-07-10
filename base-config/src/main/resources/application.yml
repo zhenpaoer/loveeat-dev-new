@@ -1,0 +1,33 @@
+
+spring:
+  application:
+    name: base-config
+  zipkin:
+    base-url: http://localhost:9003
+  boot:
+    admin:
+      client:
+        url: http://localhost:9002
+
+  # 获取本地配置文件，本身支持：本地储存、git远程、SVN
+#  profiles:
+#    active: native
+#  cloud:
+#    config:
+#      server:
+#        native:
+#          search-locations:  classpath:/config-repo
+  cloud:
+    config:
+      label: master
+      server:
+        git:
+          uri: https://github.com/zhenpaoer/loveeat-dev-new.git
+          search-paths: base-config/src/main/resources/config-repo
+          username: 1143890652@qq.com
+          password: ZHENzhen931219
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9000/eureka/

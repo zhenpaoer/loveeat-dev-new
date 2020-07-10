@@ -1,0 +1,42 @@
+server:
+  port: 8050
+
+spring:
+  application:
+    name: le-service-picture
+  zipkin:
+    base-url: http://localhost:9003
+  boot:
+    admin:
+      client:
+        url: http://localhost:9002
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/loveeat?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      username: root
+      password: root
+      initial-size: 1
+      max-active: 20
+      test-on-borrow: true
+      driver-class-name: com.mysql.jdbc.Driver
+
+eureka:
+  client:
+    service-url:
+      # Eureka注册中心连接地址
+      # 如果注册中心地址配置的域名，这里使用 http://域名/eureka/ 格式
+      defaultZone: http://localhost:9000/eureka/
+
+
+# 图片服务器 minio配置
+minio:
+  ip: 149.248.8.106:9000
+  # minio登录账号密码
+  accessKey: minioadmin123
+  secretKey: minioadmin123
+  ## 桶名（文件夹）命名规则要符合 亚马逊S3标准 详情可看http://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html
+  bucketName:
+    ## 商家照片文件夹
+    busBucket: loveeat-dev-bus
+    ## 商品照片文件夹
+    proBucket: loveeat-dev-pro

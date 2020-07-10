@@ -1,0 +1,61 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: base-zuul
+  zipkin:
+    base-url: http://localhost:9003
+  boot:
+    admin:
+      client:
+        url: http://localhost:9002
+
+eureka:
+  client:
+    service-url:
+      # Eureka注册中心连接地址
+      # 如果注册中心地址配置的域名，这里使用 http://域名/eureka/ 格式
+      defaultZone: http://localhost:9000/eureka/
+
+zuul:
+  ribbon:
+    eager-load:
+      enabled: true #zuul饥饿加载
+  routes:
+    # 路由名称，随意
+    test-service-provider: /api/provider/**
+    test-service-consumer: /api/consumer/**
+    le-service-picture: /api/picture/**
+    le-service-business: /api/business/**
+  host:
+    #以下两个配置也是解决zuul超时的
+    #和使用ribbon.ReadTimeout的区别是，如果路由配置使用service-id的方式，那么ribbon.ReadTimeout生效，如果使用url的方式，此配置生效
+
+    connect-timeout-millis: 15000 #HTTP连接超时要比Hystrix的大
+    socket-timeout-millis: 10000   #socket超时
+
+feign:
+  #替换掉JDK默认HttpURLConnection实现的 Http Client
+  httpclient:
+    enabled: true
+  hystrix:
+    # 开启Feign的Hystrix熔断器支持
+    enabled: true
+#hystrix的超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 12000
+#ribbon的超时时间
+ribbon:
+  ReadTimeout: 4000  #请求处理的超时时间
+  ConnectTimeout: 2000  #请求连接的超时时间
+
+#  Ribbon 总超时时间计算公式如下：
+#  ribbonTimeout = (RibbonReadTimeout + RibbonConnectTimeout) * (MaxAutoRetries + 1) * (MaxAutoRetriesNextServer + 1)

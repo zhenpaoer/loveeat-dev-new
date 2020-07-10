@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: base-monitor
+  cloud:
+    config:
+      uri: http://localhost:9004
+      name: base-monitor
+      profile: dev
+      label: master
