@@ -1,79 +1,110 @@
 package com.zz.basezuul.filter;
 
+import com.alibaba.fastjson.JSON;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.zz.basezuul.service.AuthService;
+import com.zz.framework.common.model.response.CommonCode;
+import com.zz.framework.common.model.response.ResponseResult;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author tycoding
- * @date 2019-05-20
- */
+/** 身份校验过虑器
+ * @author Administrator
+ * @version 1.0
+ **/
+
 @Component
 public class LoginFilter extends ZuulFilter {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    /**
-     * 过滤器类型：
-     * pre: 路由前
-     * routing: 路由时
-     * post: 路由后
-     * error: 路由发生错误时
-     *
-     * @return
-     */
+    @Autowired
+    AuthService authService;
+
+    //过虑器的类型
     @Override
     public String filterType() {
+        /**
+         pre：请求在被路由之前执行
+
+         routing：在路由请求时调用
+
+         post：在routing和errror过滤器之后调用
+
+         error：处理请求时发生错误调用
+
+         */
         return "pre";
     }
 
-    /**
-     * 过滤的顺序
-     *
-     * @return
-     */
+    //过虑器序号，越小越被优先执行
     @Override
     public int filterOrder() {
         return 0;
     }
 
-    /**
-     * 是否需要过滤
-     *
-     * @return
-     */
     @Override
     public boolean shouldFilter() {
-        return false;
+        //返回true表示要执行此过虑器
+        return true;
     }
 
-    /**
-     * 过滤器的具体业务逻辑
-     *
-     * @return
-     * @throws ZuulException
-     */
+    //过虑器的内容
+    //测试的需求：过虑所有请求，判断头部信息是否有Authorization，如果没有则拒绝访问，否则转发到微服务。
     @Override
     public Object run() throws ZuulException {
-        RequestContext currentContext = RequestContext.getCurrentContext();
-        HttpServletRequest request = currentContext.getRequest();
-        logger.info("{} >>> {}", request.getMethod(), request.getRequestURI().toString());
-        String token = request.getParameter("token");
-        if (token == null) {
-            logger.error("Error! Request Token is Empty");
-            currentContext.setSendZuulResponse(false);
-            currentContext.setResponseStatusCode(401);
-            try {
-                currentContext.getResponse().getWriter().write("Request token is empty");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        RequestContext requestContext = RequestContext.getCurrentContext();
+        //得到request
+        HttpServletRequest request = requestContext.getRequest();
+        //得到response
+        HttpServletResponse response = requestContext.getResponse();
+        //取cookie中的身份令牌
+        String tokenFromCookie = authService.getTokenFromCookie(request);
+        if(StringUtils.isEmpty(tokenFromCookie)){
+            //拒绝访问
+            access_denied();
+            return null;
         }
+        //从header中取jwt
+        String jwtFromHeader = authService.getJwtFromHeader(request);
+        if(StringUtils.isEmpty(jwtFromHeader)){
+            //拒绝访问
+            access_denied();
+            return null;
+        }
+        //从redis取出jwt的过期时间
+        long expire = authService.getExpire(tokenFromCookie);
+        if(expire<0){
+            //拒绝访问
+            access_denied();
+            return null;
+        }
+
         return null;
     }
+
+
+    //拒绝访问
+    private void access_denied(){
+        RequestContext requestContext = RequestContext.getCurrentContext();
+        //得到response
+        HttpServletResponse response = requestContext.getResponse();
+        //拒绝访问
+        requestContext.setSendZuulResponse(false);
+        //设置响应代码
+        requestContext.setResponseStatusCode(200);
+        //构建响应的信息
+        ResponseResult responseResult = new ResponseResult(CommonCode.UNAUTHENTICATED);
+        //转成json
+        String jsonString = JSON.toJSONString(responseResult);
+        requestContext.setResponseBody(jsonString);
+        //转成json，设置contentType
+        response.setContentType("application/json;charset=utf-8");
+    }
+
+
 }
