@@ -47,5 +47,5 @@ encrypt:
     location: classpath:/le.keystore
     secret: keystore
     alias: loveeat
-    password: loveeat
+    password: loveeatkeystore
 
