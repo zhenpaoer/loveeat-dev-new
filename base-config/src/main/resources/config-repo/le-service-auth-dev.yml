@@ -44,8 +44,8 @@ auth:
   cookieMaxAge: -1
 encrypt:
   key-store:
-    location: classpath:/keystore.jks
+    location: classpath:/le.keystore
     secret: keystore
-    alias: xckey
-    password: loveeat
+    alias: loveeat
+    password: loveeatkeystore
 
