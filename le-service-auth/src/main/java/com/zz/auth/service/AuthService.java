@@ -53,7 +53,7 @@ public class AuthService {
 	//申请令牌
 	private AuthToken applyToken(String username, String password, String clientId, String clientSecret){
 
-		ServiceInstance choose = loadBalancerClient.choose("service-ucenter-auth");
+		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
 		String URL = choose.getUri() + "/auth/oauth/token";
 		//header
 		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();

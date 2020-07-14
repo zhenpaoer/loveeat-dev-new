@@ -45,7 +45,9 @@ auth:
 encrypt:
   key-store:
     location: classpath:/le.keystore
+#    秘钥库密码
     secret: loveeatkeystore
     alias: loveeat
+#    秘钥密码
     password: loveeat
 

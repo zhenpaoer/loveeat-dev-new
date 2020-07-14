@@ -37,6 +37,9 @@ zuul:
     test-service-consumer: /api/consumer/**
     le-service-picture: /api/picture/**
     le-service-business: /api/business/**
+    le-service-user: /api/user/**
+    le-service-auth: /api/user/**
+
   host:
     #以下两个配置也是解决zuul超时的
     #和使用ribbon.ReadTimeout的区别是，如果路由配置使用service-id的方式，那么ribbon.ReadTimeout生效，如果使用url的方式，此配置生效
