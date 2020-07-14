@@ -7,3 +7,4 @@ spring:
       name: le-service-auth
       profile: dev
       label: dev-security1
+# keytool -genkeypair -alias loveeat  -keyalg RSA -keypass loveeat  -keystore le.keystore -storepass loveeatkeystore

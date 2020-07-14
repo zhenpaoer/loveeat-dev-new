@@ -45,7 +45,7 @@ auth:
 encrypt:
   key-store:
     location: classpath:/le.keystore
-    secret: keystore
+    secret: loveeatkeystore
     alias: loveeat
-    password: loveeatkeystore
+    password: loveeat
 
