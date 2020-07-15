@@ -38,7 +38,7 @@ zuul:
     le-service-picture: /api/picture/**
     le-service-business: /api/business/**
     le-service-user: /api/user/**
-    le-service-auth: /api/user/**
+    le-service-auth: /api/auth/**
 
   host:
     #以下两个配置也是解决zuul超时的
