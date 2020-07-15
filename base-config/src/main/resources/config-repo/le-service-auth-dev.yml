@@ -50,4 +50,8 @@ encrypt:
     alias: loveeat
 #    秘钥密码
     password: loveeat
+#ribbon的超时时间
+ribbon:
+  ReadTimeout: 4000  #请求处理的超时时间
+  ConnectTimeout: 2000  #请求连接的超时时间
 
