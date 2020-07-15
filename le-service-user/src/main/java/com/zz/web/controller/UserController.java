@@ -23,7 +23,7 @@ public class UserController implements UserControllerApi {
 
 	@Override
 	@GetMapping("getuser")
-	public GetUserExtResult getUserext(@RequestParam String userName) {
+	public GetUserExtResult getUserext(@RequestParam("username") String userName) {
 		if (StringUtils.isEmpty(userName)){
 			return new GetUserExtResult(UserCode.USER_USERNAME_CHECK_ERROR,null);
 		}

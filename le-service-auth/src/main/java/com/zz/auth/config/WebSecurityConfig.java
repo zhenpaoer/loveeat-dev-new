@@ -39,6 +39,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .and()
                 .authorizeRequests().anyRequest().authenticated();
+        //所有请求必须认证
 
     }
 }

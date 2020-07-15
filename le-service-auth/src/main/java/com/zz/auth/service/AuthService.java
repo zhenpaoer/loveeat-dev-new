@@ -54,7 +54,7 @@ public class AuthService {
 	private AuthToken applyToken(String username, String password, String clientId, String clientSecret){
 
 		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
-		String URL = choose.getUri() + "/auth/oauth/token";
+		String URL = choose.getUri() + "/oauth/token";
 		//header
 		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
 		String httpBasic = httpBasic(clientId, clientSecret);

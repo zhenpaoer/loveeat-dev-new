@@ -3,6 +3,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
@@ -70,5 +71,10 @@ public class testJwt {
 		String encoded = jwt.getEncoded();
 		System.out.println("claims==="+claims);
 		System.out.println("encoded==="+encoded);
+	}
+	@Test
+	public void testEncode(){
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		System.out.println("encode==="+encoder.encode("LeWebapp"));
 	}
 }
