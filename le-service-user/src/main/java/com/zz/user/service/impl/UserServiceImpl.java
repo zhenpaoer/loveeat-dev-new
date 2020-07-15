@@ -44,8 +44,8 @@ public class UserServiceImpl implements UserService {
 
 		//用户ID
 		Integer id = leUserBasic.getId();
-		Example example1 = new Example(LeUserBasic.class);
-		Example.Criteria criteria1 = example.createCriteria();
+		Example example1 = new Example(LeUserRole.class);
+		Example.Criteria criteria1 = example1.createCriteria();
 		criteria1.andEqualTo("userId", id);
 		List<LeUserRole> leUserRoles = leUserRoleMapper.selectByExample(example1);
 		if (leUserRoles.size() == 1) {
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 		}
 		ArrayList<LePermission> arrayList = new ArrayList<>();
 		leUserExt.getRoles().stream().forEach(leRole -> {
-			Example example2 = new Example(LeUserBasic.class);
+			Example example2 = new Example(LeRolePermission.class);
 			Example.Criteria criteria2 = example2.createCriteria();
 			criteria2.andEqualTo("roleId", leRole.getId());
 			List<LeRolePermission> leRolePermissions = leRolePermissionMapper.selectByExample(example2);
