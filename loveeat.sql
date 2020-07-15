@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50725
 File Encoding         : 65001
 
-Date: 2020-07-10 17:54:21
+Date: 2020-07-15 19:38:12
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -278,7 +278,7 @@ CREATE TABLE `le_user_basic` (
 -- ----------------------------
 -- Records of le_user_basic
 -- ----------------------------
-INSERT INTO `le_user_basic` VALUES ('1', 'aaa', null, null, '2020-07-10 17:53:55', 'zhangsan', null, '13691386065', '2020-07-10 17:54:03', null);
+INSERT INTO `le_user_basic` VALUES ('1', 'aaa', null, null, '2020-07-10 17:53:55', 'zhangsan', '123', '13691386065', '2020-07-10 17:54:03', null);
 
 -- ----------------------------
 -- Table structure for le_user_role
@@ -295,6 +295,7 @@ CREATE TABLE `le_user_role` (
 -- Records of le_user_role
 -- ----------------------------
 INSERT INTO `le_user_role` VALUES ('1', '1', '1');
+INSERT INTO `le_user_role` VALUES ('2', '1', '2');
 
 -- ----------------------------
 -- Table structure for oauth_access_token
@@ -337,6 +338,7 @@ CREATE TABLE `oauth_client_details` (
 -- ----------------------------
 -- Records of oauth_client_details
 -- ----------------------------
+INSERT INTO `oauth_client_details` VALUES ('LeWebapp', null, '$2a$10$zGDI.9wXmwz/2Z/t0A.mpuXMHC143pbPsfCy9KxZhSWQbtAmyixNW', 'app', 'password,authorization_code', 'http://localhost', null, '60', '60', null, null);
 
 -- ----------------------------
 -- Table structure for oauth_client_token
