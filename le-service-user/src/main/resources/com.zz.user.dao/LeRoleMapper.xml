@@ -12,7 +12,7 @@
     <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
   </resultMap>
 
-  <select id="getRoleByIds" resultMap="resultMap" parameterType="java.util.Map">
+ <!-- <select id="getRoleByIds" resultMap="resultMap" parameterType="java.util.Map">
     select
     *
     from le_role
@@ -20,6 +20,6 @@
     <foreach collection="ids" open="(" close=")" item="id" separator=",">
       #{id}
     </foreach>
-  </select>
+  </select>-->
 
 </mapper>

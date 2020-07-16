@@ -21,8 +21,9 @@ import tk.mybatis.spring.annotation.MapperScan;
 @ComponentScan(basePackages={"com.zz.framework.api"})//扫描接口
 @ComponentScan(basePackages={"com.zz"})
 @ComponentScan(basePackages={"com.zz.framework"})//扫描common下的所有类
+@ComponentScan(basePackages={"com.zz.user.dao"})//扫描common下的所有类
 //@MapperScan(annotationClass = Repository.class, basePackages = "com.xxx.dao")
-@MapperScan(annotationClass = Repository.class,basePackages = "com.zz.user.dao")
+@MapperScan(basePackages = "com.zz.user.dao")
 public class ServiceUserApplication {
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(ServiceUserApplication.class, args);

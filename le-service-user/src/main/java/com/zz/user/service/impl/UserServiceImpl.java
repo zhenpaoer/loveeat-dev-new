@@ -71,4 +71,12 @@ public class UserServiceImpl implements UserService {
 		leUserExt.setPermissions(arrayList);
 		return new GetUserExtResult(CommonCode.SUCCESS,leUserExt);
 	}
+
+	@Override
+	public List<Integer> getLeUserRole(int id) {
+
+		List<Integer> roleIds= leUserRoleMapper.getRoleIdByUserId(id);
+		System.out.println("roleIds=="+roleIds);
+		return roleIds;
+	}
 }
