@@ -10,14 +10,37 @@ spring:
     admin:
       client:
         url: http://localhost:9002
-
 eureka:
   client:
+    fetch-registy: true
     service-url:
       # Eureka注册中心连接地址
       # 如果注册中心地址配置的域名，这里使用 http://域名/eureka/ 格式
       defaultZone: http://localhost:9000/eureka/
 feign:
+  #替换掉JDK默认HttpURLConnection实现的 Http Client
+  httpclient:
+    enabled: true
+  client:
+    default:
+      connectTimeout: 22000 #Feign的连接建立超时时间，默认为10秒
+      readTimeout: 60000 #Feign的请求处理超时时间，默认为60
+      retryer: 5 #Feign使用默认的超时配置，在该类源码中可见，默认单次请求最大时长1秒，重试5次
   hystrix:
     # 开启Feign的Hystrix熔断器支持
-    enabled: true
+    enabled: false
+
+#hystrix的超时时间
+hystrix:
+  command:
+    default:
+      timeout:
+        enabled: true
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 12000
+#ribbon的超时时间
+ribbon:
+  ReadTimeout: 4000  #请求处理的超时时间
+  ConnectTimeout: 2000  #请求连接的超时时间
