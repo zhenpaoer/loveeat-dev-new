@@ -9,13 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
@@ -56,8 +55,8 @@ public class AuthService {
 		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
 		String URL = choose.getUri() + "/oauth/token";
 		//header
-		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
 		String httpBasic = httpBasic(clientId, clientSecret);
+		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
 		multiValueMap.add("Authorization",httpBasic);
 		//body
 		LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
@@ -80,10 +79,7 @@ public class AuthService {
 		//申请令牌
 		ResponseEntity<Map> exchange = restTemplate.exchange(URL, HttpMethod.POST, httpEntity, Map.class);
 		Map map = exchange.getBody();
-		String access_token = (String) map.get("access_token");
-		String refresh_token = (String)map.get("refresh_token");
-		String jti = (String)map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
-		if (map == null || access_token == null || refresh_token == null || jti == null){
+		if (map == null || (String) map.get("access_token") == null || (String)map.get("refresh_token") == null || (String)map.get("jti") == null){
 			////获取spring security返回的错误信息
 			if (map != null && map.get("error_description") != null){
 				if (map.get("error_description").equals("坏的凭证")){
@@ -96,6 +92,10 @@ public class AuthService {
 			}
 			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
 		}
+		String access_token = (String) map.get("access_token");
+		String refresh_token = (String)map.get("refresh_token");
+		String jti = (String)map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
+
 		//返回authToken对象
 		AuthToken authToken = new AuthToken();
 		authToken.setAccess_token(jti);

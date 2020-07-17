@@ -20,4 +20,6 @@ public interface AuthControllerApi {
 
 	@ApiOperation("查询userjwt令牌")
 	public JwtResult userjwt();
+
+
 }
