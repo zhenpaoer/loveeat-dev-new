@@ -33,9 +33,9 @@ spring:
 eureka:
   client:
 #    # 是否将自己注册到注册中心。
-#    register-with-eureka: false
+    register-with-eureka: true
 #    # 是否从远程拉取其他注册中心，
-#    fetch-registry: true
+    fetch-registry: true
     service-url:
       # Eureka注册中心连接地址
       # 如果注册中心地址配置的域名，这里使用 http://域名/eureka/ 格式
