@@ -40,7 +40,7 @@ auth:
   tokenValiditySeconds: 1200  #token存储到redis的过期时间
   clientId: LeWebApp
   clientSecret: LeWebApp
-  cookieDomain: loveeat.com
+  cookieDomain: localhost
   cookieMaxAge: -1
 encrypt:
   key-store:
