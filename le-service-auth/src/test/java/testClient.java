@@ -29,27 +29,28 @@ import java.util.Map;
  * 我们在Service方法中通过RestTemplate请求Spring Security所暴露的申请令牌接口来申请令牌，下边是测试代码：
  */
 @SpringBootTest(classes = testClient.class)
+//@SpringBootTest
 @RunWith(SpringRunner.class)
 public class testClient {
 
 	@Autowired
 	RestTemplate restTemplate;
 
-//	@Autowired
-//	LoadBalancerClient loadBalancerClient;
+	@Autowired
+	LoadBalancerClient loadBalancerClient;
 
 	@Test
 	public void testClient() {
 
 		//准备URL
 		//采用客户端负载均衡，从eureka获取认证服务的ip 和端口
-//		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
+		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
 		// url就是 申请令牌的url /oauth/token //method http的方法类型
 		// requestEntity请求内容
 		// responseType，将响应的结果生成的类型
-//		URI uri = choose.getUri();
-//		String authUrl = uri + "/oauth/token";
-		String authUrl = "http://localhost:8070/oauth/token";
+		URI uri = choose.getUri();
+		String authUrl = uri + "/oauth/token";
+//		String authUrl = "http://localhost:8070/oauth/token";
 
 		//请求的内容分两部分
 		// 1、header信息，包括了http basic认证信息
