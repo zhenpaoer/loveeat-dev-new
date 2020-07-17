@@ -1,10 +1,14 @@
 package com.zz.framework.api.user;
 
+import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.user.ext.LeUserExt;
+import com.zz.framework.domain.user.request.LoginRequest;
 import com.zz.framework.domain.user.response.GetUserExtResult;
+import com.zz.framework.domain.user.response.LoginResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * Created by zhangzhen
@@ -14,4 +18,9 @@ public interface UserControllerApi {
 	@ApiOperation("根据账号查询用户信息")
 	public GetUserExtResult getUserext(String username);
 
+	@ApiOperation("用户登录")
+	public LoginResult login(LoginRequest loginRequest);
+
+	@ApiOperation("退出")
+	public ResponseResult logout();
 }

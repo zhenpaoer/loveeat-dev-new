@@ -28,9 +28,14 @@ public class ServiceUserApplication {
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(ServiceUserApplication.class, args);
 	}
+//	@Bean
+////	@LoadBalanced
+//	public RestTemplate restTemplate() {
+//		return new RestTemplate(new OkHttp3ClientHttpRequestFactory());
+//	}
+
 	@Bean
-	@LoadBalanced
 	public RestTemplate restTemplate() {
-		return new RestTemplate(new OkHttp3ClientHttpRequestFactory());
+		return new RestTemplate();
 	}
 }
