@@ -3,6 +3,7 @@ package com.zz.auth.service;
 import com.zz.auth.feign.UserClient;
 import com.zz.framework.domain.user.LePermission;
 import com.zz.framework.domain.user.ext.LeUserExt;
+import com.zz.framework.domain.user.response.GetUserExtResult;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -54,9 +55,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (StringUtils.isEmpty(username)) {
             return null;
         }
-        //调用Ucenter服务的查询用户接口
-//        LeUserExt userext = userClient.getUserext(username);
-        LeUserExt userext = userClient.getUserext(username);
+        //调用User服务的查询用户接口
+        GetUserExtResult result = userClient.getUserext(username);
+        if (result.getCode() !=  10000){
+            return null;
+        }
+        LeUserExt userext = result.getLeUserExt();
         if (userext == null){
             //返回NULL表示用户不存在，Spring Security会抛出异常
             return null;

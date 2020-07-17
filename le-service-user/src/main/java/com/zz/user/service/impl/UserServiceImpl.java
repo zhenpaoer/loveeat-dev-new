@@ -37,38 +37,37 @@ public class UserServiceImpl implements UserService {
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("username", userName);
 		LeUserBasic leUserBasic = leUserBasicMapper.selectOneByExample(example);
-		if (leUserBasic == null) return new GetUserExtResult(UserCode.USER_ACCOUNT_NOTEXISTS,null);
+		if (leUserBasic == null) {
+			return new GetUserExtResult(UserCode.USER_ACCOUNT_NOTEXISTS,null);
+		}
 
 		LeUserExt leUserExt = new LeUserExt();
 		BeanUtils.copyProperties(leUserBasic, leUserExt);
 
 		//用户ID
 		Integer id = leUserBasic.getId();
-		Example example1 = new Example(LeUserRole.class);
-		Example.Criteria criteria1 = example1.createCriteria();
-		criteria1.andEqualTo("userId", id);
-		List<LeUserRole> leUserRoles = leUserRoleMapper.selectByExample(example1);
-		if (leUserRoles.size() == 1) {
-			LeRole leRole = leRoleMapper.selectByPrimaryKey(leUserRoles.get(0).getRoleId());
-			ArrayList<LeRole> leRoles = new ArrayList<>();
-			leRoles.add(leRole);
-			leUserExt.setRoles(leRoles);
-		} else {
-			List<Integer> roleIds = leUserRoles.stream().map(LeUserRole::getRoleId).collect(Collectors.toList());
-			List<LeRole> roleByIds = leRoleMapper.getRoleByIds(roleIds);
-			leUserExt.setRoles(roleByIds);
+		List<Integer> roleIds = leUserRoleMapper.getRoleIdByUserId(id);
+		if (roleIds.size() == 0){
+			//如果用户没角色，则赋予用户权限
+			LeUserRole leUserRole = new LeUserRole();
+			leUserRole.setUserId(id);
+			leUserRole.setRoleId(2);
+			leUserRoleMapper.insert(leUserRole);
+			this.getUserExt(userName);
 		}
-		ArrayList<LePermission> arrayList = new ArrayList<>();
-		leUserExt.getRoles().stream().forEach(leRole -> {
-			Example example2 = new Example(LeRolePermission.class);
-			Example.Criteria criteria2 = example2.createCriteria();
-			criteria2.andEqualTo("roleId", leRole.getId());
-			List<LeRolePermission> leRolePermissions = leRolePermissionMapper.selectByExample(example2);
-			List<Integer> permissinIds = leRolePermissions.stream().map(LeRolePermission::getPermissionId).distinct().collect(Collectors.toList());
-			List<LePermission> permissions = lePermissionMapper.getPermissionByIds(permissinIds);
-			arrayList.addAll(permissions);
-		});
-		leUserExt.setPermissions(arrayList);
+		List<Integer> permissionIdsByRoleids = leRolePermissionMapper.getPermissionIdsByRoleids(roleIds);
+		//去重的权限id
+		List<Integer> permissionIds = permissionIdsByRoleids.stream().distinct().collect(Collectors.toList());
+		//拿权限
+		List<LePermission> permissions = lePermissionMapper.getPermissionByIds(permissionIds);
+		if (permissions.size() != 0){
+			leUserExt.setPermissions(permissions);
+		}
+		//拿角色
+		List<LeRole> roles = leRoleMapper.getRoleByIds(roleIds);
+		if (roles.size() !=0 ){
+			leUserExt.setRoles(roles);
+		}
 		return new GetUserExtResult(CommonCode.SUCCESS,leUserExt);
 	}
 

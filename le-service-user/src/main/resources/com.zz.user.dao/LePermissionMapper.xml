@@ -14,7 +14,7 @@
     <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
   </resultMap>
 
-  <select id="getPermissionByIds" resultMap="resultMap" parameterType="java.util.Map">
+<!--  <select id="getPermissionByIds" resultMap="resultMap" parameterType="java.util.Map">
     select
     *
     from le_permission
@@ -22,5 +22,5 @@
     <foreach collection="ids" open="(" close=")" item="id" separator=",">
       #{id}
     </foreach>
-  </select>
+  </select>-->
 </mapper>

@@ -14,9 +14,19 @@ import com.zz.framework.domain.user.ext.LeUserExt;
  **/
 public class GetUserExtResult extends ResponseResult {
 
-	private LeUserExt leUserExt;
+	public LeUserExt leUserExt;
+	public GetUserExtResult(){}
 	public GetUserExtResult(ResultCode resultCode, LeUserExt leUserExt) {
 		super(resultCode);
 		this.leUserExt = leUserExt;
 	}
+
+	public LeUserExt getLeUserExt() {
+		return leUserExt;
+	}
+
+	public void setLeUserExt(LeUserExt leUserExt) {
+		this.leUserExt = leUserExt;
+	}
+
 }
