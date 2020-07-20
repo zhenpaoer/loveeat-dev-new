@@ -13,5 +13,4 @@ public interface UserService {
 
 	public List<Integer> getLeUserRole(int id);
 
-	public AuthToken login(String username,String password,String clientId, String clientSecret);
 }

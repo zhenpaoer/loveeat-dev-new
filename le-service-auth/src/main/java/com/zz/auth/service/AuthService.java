@@ -63,6 +63,9 @@ public class AuthService {
 		body.add("grant_type","password");
 		body.add("username",username);
 		body.add("password",password);
+		body.add("client_id","LeWebapp");
+		body.add("client_secret","LeWebapp");
+
 
 		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,multiValueMap);
 

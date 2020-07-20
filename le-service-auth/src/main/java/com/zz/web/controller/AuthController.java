@@ -81,7 +81,7 @@ public class AuthController implements AuthControllerApi {
 		}
 
 		//拿到令牌，存到redis
-		AuthToken authToken = login(username,password,clientId,clientSecret);
+		AuthToken authToken = authService.login(username,password,clientId,clientSecret);
 		//将用户身份令牌存到cookie
 		this.saveCookie(authToken.getAccess_token());
 		return new LoginResult(CommonCode.SUCCESS,authToken.getAccess_token());
@@ -120,34 +120,8 @@ public class AuthController implements AuthControllerApi {
 		return new JwtResult(CommonCode.SUCCESS,userToken.getJwt_token());
 	}
 
-	private String getTokenFormCookie(){
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		Map<String, String> map = CookieUtil.readCookie(request,"uid");
-		String access_token = map.get("uid");
-		return access_token;
-	}
-
-	private void clearCookie(String token){
-		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-		CookieUtil.addCookie(response, cookieDomain, "/", "uid", token, 0, false);
-	}
-
-	public AuthToken login(String username, String password, String clientId, String clientSecret) {
-		//申请令牌
-		AuthToken authToken = applyToken(username, password, clientId, clientSecret);
-		if(authToken == null){ ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL); }
-		//保存到redis
-		String content = JSON.toJSONString(authToken);
-		boolean saveTokenResult = saveToken(authToken.getAccess_token(), content, tokenValiditySeconds);
-		if (!saveTokenResult){
-			ExceptionCast.cast(AuthCode.AUTH_LOGIN_TOKEN_SAVEFAIL);
-		}
-
-		return authToken;
-	}
-	//申请令牌
-	private AuthToken applyToken(String username, String password, String clientId, String clientSecret){
-
+	@PostMapping("newlogin")
+	public Map newLogin(){
 		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
 		String URL = choose.getUri() + "/oauth/token";
 		//header
@@ -157,8 +131,11 @@ public class AuthController implements AuthControllerApi {
 		//body
 		LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
 		body.add("grant_type","password");
-		body.add("username",username);
-		body.add("password",password);
+		body.add("username","zhangsan");
+		body.add("password","123");
+		body.add("client_id","LeWebapp");
+		body.add("client_secret","LeWebapp");
+
 
 		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,multiValueMap);
 
@@ -175,29 +152,20 @@ public class AuthController implements AuthControllerApi {
 		//申请令牌
 		ResponseEntity<Map> exchange = restTemplate.exchange(URL, HttpMethod.POST, httpEntity, Map.class);
 		Map map = exchange.getBody();
-		if (map == null || (String) map.get("access_token") == null || (String)map.get("refresh_token") == null || (String)map.get("jti") == null){
-			////获取spring security返回的错误信息
-			if (map != null && map.get("error_description") != null){
-				if (map.get("error_description").equals("坏的凭证")){
-					//账号或密码错误
-					ExceptionCast.cast(AuthCode.AUTH_CREDENTIAL_ERROR);
-				}else if (map.get("error_description").toString().indexOf("UserDetailsService returned null")>=0){
-					//账号不存在
-					ExceptionCast.cast(AuthCode.AUTH_ACCOUNT_NOTEXISTS);
-				}
-			}
-			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
-		}
-		String access_token = (String) map.get("access_token");
-		String refresh_token = (String)map.get("refresh_token");
-		String jti = (String)map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
+		return map;
+	}
 
-		//返回authToken对象
-		AuthToken authToken = new AuthToken();
-		authToken.setAccess_token(jti);
-		authToken.setJwt_token(access_token);
-		authToken.setRefresh_token(refresh_token);
-		return authToken;
+
+	private String getTokenFormCookie(){
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		Map<String, String> map = CookieUtil.readCookie(request,"uid");
+		String access_token = map.get("uid");
+		return access_token;
+	}
+
+	private void clearCookie(String token){
+		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+		CookieUtil.addCookie(response, cookieDomain, "/", "uid", token, 0, false);
 	}
 	private String httpBasic(String clientId,String clientSecret){
 
@@ -207,32 +175,11 @@ public class AuthController implements AuthControllerApi {
 		byte[] encode = Base64Utils.encode(s.getBytes());
 		return "Basic "+new String(encode);
 	}
-	//存储令牌到redis
-	private boolean saveToken(String access_token,String content,long ttl){
-		//令牌名称 也是redis的key
-		String key = "user_token:" + access_token;
-		//保存令牌到redis
-		stringRedisTemplate.boundValueOps(key).set(content,ttl, TimeUnit.SECONDS);
-		//获取过期时间
-		Long expire = stringRedisTemplate.getExpire(key);
-		return expire>0;
-	}
 
-	//从redis查询令牌
-	public AuthToken getUserToken(String tokenFormCookie) {
-		String key = "user_token:"+tokenFormCookie;
-		String value = stringRedisTemplate.opsForValue().get(key);
-		if(value !=null){
-			AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
-			return authToken;
-		}
 
-		return null;
-	}
 
-	public boolean delToken(String tokenFormCookie) {
-		String key = "user_token:" + tokenFormCookie;
-		stringRedisTemplate.delete(key);
-		return true;
-	}
+
+
+
+
 }
