@@ -26,18 +26,16 @@ public class ServiceAuthApplication {
 		SpringApplication.run(ServiceAuthApplication.class, args);
 	}
 
-/*
-	@Bean
 //	@LoadBalanced 加了会报错
+	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-*/
 
-	@Bean
+	/*@Bean
 	public RestTemplate restTemplate() {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 		return  restTemplate;
-	}
+	}*/
 }

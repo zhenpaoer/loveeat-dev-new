@@ -55,8 +55,7 @@ public class UserServiceImpl implements UserService {
 	LoadBalancerClient loadBalancerClient;
 	@Autowired
 	StringRedisTemplate stringRedisTemplate;
-	@Value("${auth.tokenValiditySeconds}")
-	int tokenValiditySeconds;
+
 
 	@Override
 	public GetUserExtResult getUserExt(String userName) {

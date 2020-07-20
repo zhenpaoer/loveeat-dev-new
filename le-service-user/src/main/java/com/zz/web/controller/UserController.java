@@ -45,22 +45,10 @@ public class UserController implements UserControllerApi {
 	RestTemplate restTemplate;
 	@Autowired
 	LoadBalancerClient loadBalancerClient;
-	@Value("${auth.clientId}")
-	String clientId;
-
-	@Value("${auth.clientSecret}")
-	String clientSecret;
-
-	@Value("${auth.cookieDomain}")
-	String cookieDomain;
-
-	@Value("${auth.cookieMaxAge}")
-	int cookieMaxAge;
 
 	@Autowired
 	StringRedisTemplate stringRedisTemplate;
-	@Value("${auth.tokenValiditySeconds}")
-	int tokenValiditySeconds;
+
 
 	@Override
 	@GetMapping("getuser")

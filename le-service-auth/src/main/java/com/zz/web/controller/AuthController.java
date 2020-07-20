@@ -100,7 +100,6 @@ public class AuthController implements AuthControllerApi {
 		//取出身份令牌
 		String tokenFormCookie = getTokenFormCookie();
 		//删除redis中token
-		authService.delToken(tokenFormCookie);
 		//清除cookie中的token
 		clearCookie(tokenFormCookie);
 		return new ResponseResult(CommonCode.SUCCESS);
@@ -109,7 +108,7 @@ public class AuthController implements AuthControllerApi {
 	@Override
 	@GetMapping("/userjwt")
 	public JwtResult userjwt() {
-		//获取cookie中的令牌
+		/*//获取cookie中的令牌
 		String tokenFormCookie = getTokenFormCookie();
 		//根据令牌从redis查询jwt
 		AuthToken userToken = authService.getUserToken(tokenFormCookie);
@@ -117,7 +116,8 @@ public class AuthController implements AuthControllerApi {
 			return new JwtResult(CommonCode.FAIL,null);
 		}
 
-		return new JwtResult(CommonCode.SUCCESS,userToken.getJwt_token());
+		return new JwtResult(CommonCode.SUCCESS,userToken.getJwt_token());*/
+		return null;
 	}
 
 	@PostMapping("newlogin")
