@@ -32,6 +32,7 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -51,7 +52,6 @@ public class AuthService {
 	StringRedisTemplate stringRedisTemplate;
 	@Value("${auth.tokenValiditySeconds}")
 	int tokenValiditySeconds;
-	private DecompressingHttpClient HttpClientPool;
 	private static HttpClientContext context = HttpClientContext.create();
 
 	public AuthToken login(String username, String password, String clientId, String clientSecret) {
@@ -69,36 +69,42 @@ public class AuthService {
 	//申请令牌
 	private AuthToken applyToken(String username, String password, String clientId, String clientSecret) {
 
+		//准备URL
+		//采用客户端负载均衡，从eureka获取认证服务的ip 和端口
 		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
-		String URL = choose.getUri() + "/oauth/token";
-		//header
-		String httpBasic = httpBasic(clientId, clientSecret);
-		LinkedMultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
-		multiValueMap.add("Authorization", httpBasic);
-		//body
-		LinkedMultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add("grant_type", "password");
-		body.add("username", username);
-		body.add("password", password);
+		// url就是 申请令牌的url /oauth/token //method http的方法类型
+		// requestEntity请求内容
+		// responseType，将响应的结果生成的类型
+		URI uri = choose.getUri();
+		String authUrl = uri + "/oauth/token";
+//		String authUrl = "http://localhost:8070/oauth/token";
 
+		//请求的内容分两部分
+		// 1、header信息，包括了http basic认证信息
+		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+		String httpbasic = httpBasic("LeWebapp", "LeWebapp");
+		headers.add("Authorization",httpbasic);
+		//2、包括：grant_type、username、passowrd
+		LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
+		body.add("grant_type","password");
+		body.add("username",username);
+		body.add("password",password);
 
-		HttpEntity<LinkedMultiValueMap<String, String>> httpEntity = new HttpEntity<>(body, multiValueMap);
+		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,headers);
 
 		//指定 restTemplate当遇到400或401响应时候也不要抛出异常，也要正常返回值
-		restTemplate.setErrorHandler(new DefaultResponseErrorHandler() {
-			@Override
-			public void handleError(ClientHttpResponse response) throws IOException {
+		restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
+			@Override public void handleError(ClientHttpResponse response) throws IOException {
 				//当响应的值为400或401时候也要正常响应，不要抛出异常
-				if (response.getRawStatusCode() != 400 && response.getRawStatusCode() != 401) {
+				if(response.getRawStatusCode()!=400 && response.getRawStatusCode()!=401){
 					super.handleError(response);
 				}
 			}
 		});
-
-		//申请令牌
-		ResponseEntity<Map> exchange = restTemplate.exchange(URL, HttpMethod.POST, httpEntity, Map.class);
+		//远程调用申请令牌
+		ResponseEntity<Map> exchange = restTemplate.exchange(authUrl, HttpMethod.POST, httpEntity, Map.class);
 		Map map = exchange.getBody();
-		if (map == null || (String) map.get("access_token") == null || (String) map.get("refresh_token") == null || (String) map.get("jti") == null) {
+		/*if (map == null || (String) map.get("access_token") == null || (String) map.get("refresh_token") == null || (String) map.get("jti") == null) {
 			////获取spring security返回的错误信息
 			if (map != null && map.get("error_description") != null) {
 				if (map.get("error_description").equals("坏的凭证")) {
@@ -110,7 +116,7 @@ public class AuthService {
 				}
 			}
 			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
-		}
+		}*/
 		String access_token = (String) map.get("access_token");
 		String refresh_token = (String) map.get("refresh_token");
 		String jti = (String) map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌

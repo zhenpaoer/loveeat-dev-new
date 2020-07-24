@@ -83,7 +83,7 @@ public class AuthController implements AuthControllerApi {
 		//拿到令牌，存到redis
 		AuthToken authToken = authService.login(username,password,clientId,clientSecret);
 		//将用户身份令牌存到cookie
-		this.saveCookie(authToken.getAccess_token());
+//		this.saveCookie(authToken.getAccess_token());
 		return new LoginResult(CommonCode.SUCCESS,authToken.getAccess_token());
 	}
 
@@ -120,41 +120,6 @@ public class AuthController implements AuthControllerApi {
 		return null;
 	}
 
-	@PostMapping("newlogin")
-	public Map newLogin(){
-		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
-		String URL = choose.getUri() + "/oauth/token";
-		//header
-		String httpBasic = httpBasic(clientId, clientSecret);
-		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
-		multiValueMap.add("Authorization",httpBasic);
-		//body
-		LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
-		body.add("grant_type","password");
-		body.add("username","zhangsan");
-		body.add("password","123");
-		body.add("client_id","LeWebapp");
-		body.add("client_secret","LeWebapp");
-
-
-		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,multiValueMap);
-
-		//指定 restTemplate当遇到400或401响应时候也不要抛出异常，也要正常返回值
-		restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
-			@Override public void handleError(ClientHttpResponse response) throws IOException {
-				//当响应的值为400或401时候也要正常响应，不要抛出异常
-				if(response.getRawStatusCode()!=400 && response.getRawStatusCode()!=401){
-					super.handleError(response);
-				}
-			}
-		});
-
-		//申请令牌
-		ResponseEntity<Map> exchange = restTemplate.exchange(URL, HttpMethod.POST, httpEntity, Map.class);
-		Map map = exchange.getBody();
-		return map;
-	}
-
 
 	private String getTokenFormCookie(){
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -167,19 +132,5 @@ public class AuthController implements AuthControllerApi {
 		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
 		CookieUtil.addCookie(response, cookieDomain, "/", "uid", token, 0, false);
 	}
-	private String httpBasic(String clientId,String clientSecret){
-
-		//将客户端id和客户端密码拼接，按“客户端id:客户端密码”
-		String s = clientId +":"+ clientSecret;
-		//进行base64编码
-		byte[] encode = Base64Utils.encode(s.getBytes());
-		return "Basic "+new String(encode);
-	}
-
-
-
-
-
-
 
 }
