@@ -104,7 +104,7 @@ public class AuthService {
 		//远程调用申请令牌
 		ResponseEntity<Map> exchange = restTemplate.exchange(authUrl, HttpMethod.POST, httpEntity, Map.class);
 		Map map = exchange.getBody();
-		/*if (map == null || (String) map.get("access_token") == null || (String) map.get("refresh_token") == null || (String) map.get("jti") == null) {
+		if (map == null || (String) map.get("access_token") == null || (String) map.get("refresh_token") == null || (String) map.get("jti") == null) {
 			////获取spring security返回的错误信息
 			if (map != null && map.get("error_description") != null) {
 				if (map.get("error_description").equals("坏的凭证")) {
@@ -116,7 +116,7 @@ public class AuthService {
 				}
 			}
 			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
-		}*/
+		}
 		String access_token = (String) map.get("access_token");
 		String refresh_token = (String) map.get("refresh_token");
 		String jti = (String) map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
