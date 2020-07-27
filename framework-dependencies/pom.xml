@@ -62,6 +62,8 @@
         <srpingboot-devtool>2.1.2.RELEASE</srpingboot-devtool>
         <logstash-logback.version>4.8</logstash-logback.version>
         <feign-okhttp.version>8.18.0</feign-okhttp.version>
+        <redisson.version>3.13.2</redisson.version>
+        <lettuce.version>5.3.0.RELEASE</lettuce.version>
     </properties>
 
     <dependencies>
@@ -191,7 +193,18 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector-java.version}</version>
             </dependency>
-
+            <!-- redis客户端 lettuce-->
+            <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>${lettuce.version}</version>
+            </dependency>
+            <!-- redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
             <!--分布式文件存储 -->
             <dependency>
                 <groupId>io.minio</groupId>

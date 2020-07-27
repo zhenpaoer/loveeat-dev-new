@@ -61,7 +61,11 @@ public class AuthService {
 			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
 		}
 		//保存到redis
-
+		String content = JSON.toJSONString(authToken);
+		boolean saveTokenResult = saveToken(authToken.getAccess_token(), content, tokenValiditySeconds);
+		if (!saveTokenResult){
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_TOKEN_SAVEFAIL);
+		}
 
 		return authToken;
 	}
@@ -136,5 +140,31 @@ public class AuthService {
 		//进行base64编码
 		byte[] encode = Base64Utils.encode(s.getBytes());
 		return "Basic " + new String(encode);
+	}
+
+	//存储令牌到redis
+	private boolean saveToken(String access_token,String content,long ttl){
+		//令牌名称 也是redis的key
+		String key = "token:" + access_token;
+		//保存令牌到redis
+		stringRedisTemplate.boundValueOps(key).set(content,ttl, TimeUnit.SECONDS);
+		//获取过期时间
+		Long expire = stringRedisTemplate.getExpire(key);
+		return expire > 0;
+	}
+	//从redis查询令牌
+	public AuthToken getUserToken(String tokenFormCookie) {
+		String key = "token:"+tokenFormCookie;
+		String value = stringRedisTemplate.opsForValue().get(key);
+		if(value !=null){
+			AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
+			return authToken;
+		}
+
+		return null;
+	}
+	public boolean delToken(String token) {
+		String key = "token:" + token;
+		return stringRedisTemplate.delete(key);
 	}
 }

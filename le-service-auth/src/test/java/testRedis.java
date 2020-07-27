@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by zhangzhen on 2019/7/10
  */
-@SpringBootTest
+@SpringBootTest(classes = testRedis.class)
 @RunWith(SpringRunner.class)
 public class testRedis {
 	@Autowired
