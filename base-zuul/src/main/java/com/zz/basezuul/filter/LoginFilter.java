@@ -30,13 +30,9 @@ public class LoginFilter extends ZuulFilter {
     public String filterType() {
         /**
          pre：请求在被路由之前执行
-
          routing：在路由请求时调用
-
          post：在routing和errror过滤器之后调用
-
          error：处理请求时发生错误调用
-
          */
         return "pre";
     }
@@ -62,28 +58,24 @@ public class LoginFilter extends ZuulFilter {
         HttpServletRequest request = requestContext.getRequest();
         //得到response
         HttpServletResponse response = requestContext.getResponse();
-        //取cookie中的身份令牌
-        String tokenFromCookie = authService.getTokenFromCookie(request);
-        if(StringUtils.isEmpty(tokenFromCookie)){
-            //拒绝访问
-            access_denied();
-            return null;
-        }
+
         //从header中取jwt
         String jwtFromHeader = authService.getJwtFromHeader(request);
         if(StringUtils.isEmpty(jwtFromHeader)){
+            if (request.getRequestURI().contains("userlogin")){
+                return null;
+            }
             //拒绝访问
             access_denied();
             return null;
         }
         //从redis取出jwt的过期时间
-        long expire = authService.getExpire(tokenFromCookie);
+        long expire = authService.getExpire(jwtFromHeader);
         if(expire<0){
             //拒绝访问
             access_denied();
             return null;
         }
-
         return null;
     }
 
