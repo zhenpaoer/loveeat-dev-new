@@ -62,9 +62,9 @@ public class LoginFilter extends ZuulFilter {
         //从header中取jwt
         String jwtFromHeader = authService.getJwtFromHeader(request);
         if(StringUtils.isEmpty(jwtFromHeader)){
-            if (request.getRequestURI().contains("userlogin")){
+           /* if (request.getRequestURI().contains("userlogin")){
                 return null;
-            }
+            }*/
             //拒绝访问
             access_denied();
             return null;
