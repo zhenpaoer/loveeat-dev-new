@@ -40,15 +40,15 @@ zuul:
 #      serviceId: le-service-business
 #      sensitiveHeaders: #默认zuul会屏蔽cookie，cookie不会传到下游服务，这里设置为空则取消默认的黑名 单，如果设置了具体的头信息则不会传到下游服务
     test-service-provider: /api/provider/**
-      sensitiveHeaders:
+#      sensitiveHeaders:
     test-service-consumer: /api/consumer/**
-      sensitiveHeaders:
+#      sensitiveHeaders:
     le-service-picture: /api/picture/**
-      sensitiveHeaders:
+#      sensitiveHeaders:
     le-service-business: /api/business/**
-      sensitiveHeaders:
+#      sensitiveHeaders:
     le-service-user: /api/user/**
-      sensitiveHeaders:
+#      sensitiveHeaders:
     le-service-auth: /api/auth/**
 
   host:
