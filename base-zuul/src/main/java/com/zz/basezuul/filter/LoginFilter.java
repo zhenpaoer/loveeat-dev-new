@@ -72,16 +72,15 @@ public class LoginFilter extends ZuulFilter {
 
         //从header中取jwt
         String jwtFromHeader = authService.getJwtFromHeader(request);
+        //从header中取access_token
+        String tokenFromHeader = authService.getTokenFromHeader(request);
         if(StringUtils.isEmpty(jwtFromHeader)){
-           /* if (request.getRequestURI().contains("userlogin")){
-                return null;
-            }*/
             //拒绝访问
             access_denied();
             return null;
         }
         //从redis取出jwt的过期时间
-        long expire = authService.getExpire(jwtFromHeader);
+        long expire = authService.getExpire(tokenFromHeader);
         if(expire<0){
             //拒绝访问
             access_denied();

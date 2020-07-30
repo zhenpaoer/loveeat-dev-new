@@ -26,6 +26,9 @@ public class FeignClientInterceptor implements RequestInterceptor {
 					if (headerName.equals("authrization")){
 						template.header(headerName,values);
 					}
+					if (headerName.equals("Authrization")){
+						template.header(headerName,values);
+					}
 				}
 			}
 		}
