@@ -32,23 +32,24 @@ zuul:
   ribbon:
     eager-load:
       enabled: true #zuul饥饿加载
+  sensitiveHeaders: Cookie,Set-Cookie
   routes:
     # 路由名称，随意
-    business:
-      path: /business/**         
-      serviceId: le-service-business
-      sensitiveHeaders: #默认zuul会屏蔽cookie，cookie不会传到下游服务，这里设置为空则取消默认的黑名 单，如果设置了具体的头信息则不会传到下游服务
-#    test-service-provider: /api/provider/**
-#      sensitiveHeaders:
-#    test-service-consumer: /api/consumer/**
-#      sensitiveHeaders:
-#    le-service-picture: /api/picture/**
-#      sensitiveHeaders:
-#    le-service-business: /api/business/**
-#      sensitiveHeaders:
-#    le-service-user: /api/user/**
-#      sensitiveHeaders:
-#    le-service-auth: /api/auth/**
+#    business:
+#      path: /business/**         
+#      serviceId: le-service-business
+#      sensitiveHeaders: #默认zuul会屏蔽cookie，cookie不会传到下游服务，这里设置为空则取消默认的黑名 单，如果设置了具体的头信息则不会传到下游服务
+    test-service-provider: /api/provider/**
+      sensitiveHeaders:
+    test-service-consumer: /api/consumer/**
+      sensitiveHeaders:
+    le-service-picture: /api/picture/**
+      sensitiveHeaders:
+    le-service-business: /api/business/**
+      sensitiveHeaders:
+    le-service-user: /api/user/**
+      sensitiveHeaders:
+    le-service-auth: /api/auth/**
 
   host:
     #以下两个配置也是解决zuul超时的
