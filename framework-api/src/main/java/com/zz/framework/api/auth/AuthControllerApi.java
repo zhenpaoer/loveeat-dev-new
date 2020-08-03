@@ -16,10 +16,10 @@ public interface AuthControllerApi {
 	public LoginResult login(LoginRequest loginRequest);
 
 	@ApiOperation("退出")
-	public ResponseResult logout();
+	public ResponseResult logout(String token);
 
 	@ApiOperation("查询userjwt令牌")
-	public JwtResult userjwt();
+	public JwtResult userjwt(String token);
 
 
 }

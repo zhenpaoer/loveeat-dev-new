@@ -37,22 +37,22 @@ public class AuthService {
 
 
     }
-    //从cookie取出token
-    //查询身份令牌
-    public String getTokenFromCookie(HttpServletRequest request){
-        Map<String, String> cookieMap = CookieUtil.readCookie(request, "uid");
-        String access_token = cookieMap.get("uid");
-        if(StringUtils.isEmpty(access_token)){
-            return null;
-        }
-        return access_token;
-    }
 
     //查询令牌的有效期
      public long getExpire(String access_token){
         //key
-         String key = "user_token:"+access_token;
+         String key = "token:"+access_token;
          Long expire = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
          return expire;
      }
+
+    public String getTokenFromHeader(HttpServletRequest request) {
+        //取出头信息
+        String token = request.getHeader("token");
+        if(StringUtils.isEmpty(token)){
+            return null;
+        }
+        //取到access_token
+        return token;
+    }
 }

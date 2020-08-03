@@ -18,9 +18,4 @@ public interface UserControllerApi {
 	@ApiOperation("根据账号查询用户信息")
 	public GetUserExtResult getUserext(String username);
 
-	@ApiOperation("用户登录")
-	public LoginResult login(LoginRequest loginRequest);
-
-	@ApiOperation("退出")
-	public ResponseResult logout();
 }

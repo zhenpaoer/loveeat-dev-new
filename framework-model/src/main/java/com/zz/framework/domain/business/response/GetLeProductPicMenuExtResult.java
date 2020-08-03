@@ -5,6 +5,7 @@ package com.zz.framework.domain.business.response;/**
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResultCode;
 import com.zz.framework.domain.business.ext.LeProductPicMenuExt;
+import lombok.Data;
 
 /**
  * @ClassName GetLeProductPicMenuExtResult
@@ -13,10 +14,12 @@ import com.zz.framework.domain.business.ext.LeProductPicMenuExt;
  * @Date 2020/5/17 
  * @Version V1.0
  **/
+@Data
 public class GetLeProductPicMenuExtResult extends ResponseResult {
 	private LeProductPicMenuExt leProductPicMenuExt;
 	public GetLeProductPicMenuExtResult(ResultCode resultCode, LeProductPicMenuExt leProductPicMenuExt) {
 		super(resultCode);
 		this.leProductPicMenuExt = leProductPicMenuExt;
 	}
+
 }

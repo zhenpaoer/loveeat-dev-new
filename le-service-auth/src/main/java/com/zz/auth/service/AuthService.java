@@ -1,9 +1,22 @@
 package com.zz.auth.service;
 
 import com.alibaba.fastjson.JSON;
+import com.netflix.http4.NFHttpClient;
 import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.domain.user.ext.AuthToken;
 import com.zz.framework.domain.user.response.AuthCode;
+import org.apache.http.Consts;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DecompressingHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
@@ -19,6 +32,10 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -35,11 +52,14 @@ public class AuthService {
 	StringRedisTemplate stringRedisTemplate;
 	@Value("${auth.tokenValiditySeconds}")
 	int tokenValiditySeconds;
+	private static HttpClientContext context = HttpClientContext.create();
 
 	public AuthToken login(String username, String password, String clientId, String clientSecret) {
 		//申请令牌
 		AuthToken authToken = applyToken(username, password, clientId, clientSecret);
-		if(authToken == null){ ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL); }
+		if (authToken == null) {
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
+		}
 		//保存到redis
 		String content = JSON.toJSONString(authToken);
 		boolean saveTokenResult = saveToken(authToken.getAccess_token(), content, tokenValiditySeconds);
@@ -49,22 +69,32 @@ public class AuthService {
 
 		return authToken;
 	}
-	//申请令牌
-	private AuthToken applyToken(String username, String password, String clientId, String clientSecret){
 
+	//申请令牌
+	private AuthToken applyToken(String username, String password, String clientId, String clientSecret) {
+
+		//准备URL
+		//采用客户端负载均衡，从eureka获取认证服务的ip 和端口
 		ServiceInstance choose = loadBalancerClient.choose("le-service-auth");
-		String URL = choose.getUri() + "/oauth/token";
-		//header
-		String httpBasic = httpBasic(clientId, clientSecret);
-		LinkedMultiValueMap<String,String> multiValueMap = new LinkedMultiValueMap<>();
-		multiValueMap.add("Authorization",httpBasic);
-		//body
+		// url就是 申请令牌的url /oauth/token //method http的方法类型
+		// requestEntity请求内容
+		// responseType，将响应的结果生成的类型
+		URI uri = choose.getUri();
+		String authUrl = uri + "/oauth/token";
+//		String authUrl = "http://localhost:8070/oauth/token";
+
+		//请求的内容分两部分
+		// 1、header信息，包括了http basic认证信息
+		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+		String httpbasic = httpBasic("LeWebapp", "LeWebapp");
+		headers.add("Authorization",httpbasic);
+		//2、包括：grant_type、username、passowrd
 		LinkedMultiValueMap<String,String> body = new LinkedMultiValueMap<>();
 		body.add("grant_type","password");
 		body.add("username",username);
 		body.add("password",password);
 
-		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,multiValueMap);
+		HttpEntity<LinkedMultiValueMap<String,String>> httpEntity = new HttpEntity<>(body,headers);
 
 		//指定 restTemplate当遇到400或401响应时候也不要抛出异常，也要正常返回值
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler(){
@@ -75,17 +105,16 @@ public class AuthService {
 				}
 			}
 		});
-
-		//申请令牌
-		ResponseEntity<Map> exchange = restTemplate.exchange(URL, HttpMethod.POST, httpEntity, Map.class);
+		//远程调用申请令牌
+		ResponseEntity<Map> exchange = restTemplate.exchange(authUrl, HttpMethod.POST, httpEntity, Map.class);
 		Map map = exchange.getBody();
-		if (map == null || (String) map.get("access_token") == null || (String)map.get("refresh_token") == null || (String)map.get("jti") == null){
+		if (map == null || (String) map.get("access_token") == null || (String) map.get("refresh_token") == null || (String) map.get("jti") == null) {
 			////获取spring security返回的错误信息
-			if (map != null && map.get("error_description") != null){
-				if (map.get("error_description").equals("坏的凭证")){
+			if (map != null && map.get("error_description") != null) {
+				if (map.get("error_description").equals("坏的凭证")) {
 					//账号或密码错误
 					ExceptionCast.cast(AuthCode.AUTH_CREDENTIAL_ERROR);
-				}else if (map.get("error_description").toString().indexOf("UserDetailsService returned null")>=0){
+				} else if (map.get("error_description").toString().indexOf("UserDetailsService returned null") >= 0) {
 					//账号不存在
 					ExceptionCast.cast(AuthCode.AUTH_ACCOUNT_NOTEXISTS);
 				}
@@ -93,8 +122,8 @@ public class AuthService {
 			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
 		}
 		String access_token = (String) map.get("access_token");
-		String refresh_token = (String)map.get("refresh_token");
-		String jti = (String)map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
+		String refresh_token = (String) map.get("refresh_token");
+		String jti = (String) map.get("jti"); //jti是jwt令牌的唯一标识作为用户身份令牌
 
 		//返回authToken对象
 		AuthToken authToken = new AuthToken();
@@ -102,29 +131,30 @@ public class AuthService {
 		authToken.setJwt_token(access_token);
 		authToken.setRefresh_token(refresh_token);
 		return authToken;
-	}
-	private String httpBasic(String clientId,String clientSecret){
 
+}
+
+	private String httpBasic(String clientId, String clientSecret) {
 		//将客户端id和客户端密码拼接，按“客户端id:客户端密码”
-		String s = clientId +":"+ clientSecret;
+		String s = clientId + ":" + clientSecret;
 		//进行base64编码
 		byte[] encode = Base64Utils.encode(s.getBytes());
-		return "Basic "+new String(encode);
+		return "Basic " + new String(encode);
 	}
+
 	//存储令牌到redis
 	private boolean saveToken(String access_token,String content,long ttl){
 		//令牌名称 也是redis的key
-		String key = "user_token:" + access_token;
+		String key = "token:" + access_token;
 		//保存令牌到redis
 		stringRedisTemplate.boundValueOps(key).set(content,ttl, TimeUnit.SECONDS);
 		//获取过期时间
 		Long expire = stringRedisTemplate.getExpire(key);
-		return expire>0;
+		return expire > 0;
 	}
-
 	//从redis查询令牌
 	public AuthToken getUserToken(String tokenFormCookie) {
-		String key = "user_token:"+tokenFormCookie;
+		String key = "token:"+tokenFormCookie;
 		String value = stringRedisTemplate.opsForValue().get(key);
 		if(value !=null){
 			AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
@@ -133,10 +163,8 @@ public class AuthService {
 
 		return null;
 	}
-
-	public boolean delToken(String tokenFormCookie) {
-		String key = "user_token:" + tokenFormCookie;
-		stringRedisTemplate.delete(key);
-		return true;
+	public boolean delToken(String token) {
+		String key = "token:" + token;
+		return stringRedisTemplate.delete(key);
 	}
 }
