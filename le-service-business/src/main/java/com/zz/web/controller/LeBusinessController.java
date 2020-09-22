@@ -11,6 +11,8 @@ import com.zz.framework.domain.business.LeBusiness;
 import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetBusinessInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -31,7 +33,8 @@ public class LeBusinessController implements BusinessControllerApi {
 	//获取某一个商家信息----
 	@Override
 	@GetMapping("/getBusById/{id}")
-	public GetBusinessInfoResult getBusById(int id) {
+	@PreAuthorize(value = "hasAnyRole('ROLE_USER','ROLE_ADMIN')")
+	public GetBusinessInfoResult getBusById(@PathVariable int id) {
 		if (id < 0 ){
 			return new GetBusinessInfoResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
 		}
@@ -45,6 +48,7 @@ public class LeBusinessController implements BusinessControllerApi {
 	//获取所有商家信息
 	@Override
 	@GetMapping("/getBusList")
+	@PreAuthorize(value = "hasRole('ROLE_ADMIN')")
 	public QueryResponseResult<LeBusiness> getBusList() {
 		return leBusinessService.getAll();
 	}
@@ -52,6 +56,7 @@ public class LeBusinessController implements BusinessControllerApi {
 	//添加商家信息
 	@Override
 	@PostMapping("/createBusiness")
+	@PreAuthorize(value="isAuthenticated()")//添加登录权限判断，登录才可以调用
 	public ResponseResult createBusiness(@RequestBody LeBusiness leBusiness) {
 		return leBusinessService.createLeBusiness(leBusiness);
 	}

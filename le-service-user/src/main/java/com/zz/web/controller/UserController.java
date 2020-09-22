@@ -59,4 +59,13 @@ public class UserController implements UserControllerApi {
 		return userService.getUserExt(userName);
 	}
 
+	/*@Override
+	@GetMapping("createuser")
+	public GetUserExtResult createUser(@RequestParam("username") String userName) {
+		if (StringUtils.isEmpty(userName)){
+			return new GetUserExtResult(UserCode.USER_USERNAME_CHECK_ERROR,null);
+		}
+		return userService.getUserExt(userName);
+	}*/
+
 }

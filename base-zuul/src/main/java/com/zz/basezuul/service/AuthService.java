@@ -3,6 +3,7 @@ package com.zz.basezuul.service;
 import com.zz.framework.utils.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -41,18 +42,32 @@ public class AuthService {
     //查询令牌的有效期
      public long getExpire(String access_token){
         //key
-         String key = "token:"+access_token;
-         Long expire = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+         Long expire = null;
+         try {
+             String key = "token:"+access_token;
+             expire = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+         } catch (Exception e) {
+             e.printStackTrace();
+         } finally {
+             RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
+         }
          return expire;
      }
 
     public String getTokenFromHeader(HttpServletRequest request) {
-        //取出头信息
-        String token = request.getHeader("token");
-        if(StringUtils.isEmpty(token)){
-            return null;
+        try {
+            //取出头信息
+            String token = request.getHeader("token");
+            if(StringUtils.isEmpty(token)){
+                return null;
+            }
+            //取到access_token
+            return token;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
         }
-        //取到access_token
-        return token;
+        return null;
     }
 }

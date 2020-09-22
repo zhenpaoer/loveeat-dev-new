@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
@@ -144,27 +145,49 @@ public class AuthService {
 
 	//存储令牌到redis
 	private boolean saveToken(String access_token,String content,long ttl){
-		//令牌名称 也是redis的key
-		String key = "token:" + access_token;
-		//保存令牌到redis
-		stringRedisTemplate.boundValueOps(key).set(content,ttl, TimeUnit.SECONDS);
-		//获取过期时间
-		Long expire = stringRedisTemplate.getExpire(key);
-		return expire > 0;
+		Long expire = null;
+		try {
+			//令牌名称 也是redis的key
+			String key = "token:" + access_token;
+			//保存令牌到redis
+			stringRedisTemplate.boundValueOps(key).set(content,ttl, TimeUnit.SECONDS);
+			//获取过期时间
+			expire = stringRedisTemplate.getExpire(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
+		}
+		if (expire != null){
+			return  expire > 0;
+		}
+		return false;
 	}
 	//从redis查询令牌
 	public AuthToken getUserToken(String tokenFormCookie) {
-		String key = "token:"+tokenFormCookie;
-		String value = stringRedisTemplate.opsForValue().get(key);
-		if(value !=null){
-			AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
-			return authToken;
+		try {
+			String key = "token:"+tokenFormCookie;
+			String value = stringRedisTemplate.opsForValue().get(key);
+			if(value !=null){
+				AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
+				return authToken;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
 		}
-
 		return null;
 	}
 	public boolean delToken(String token) {
-		String key = "token:" + token;
-		return stringRedisTemplate.delete(key);
+		try {
+			String key = "token:" + token;
+			return stringRedisTemplate.delete(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
+		}
+		return false;
 	}
 }

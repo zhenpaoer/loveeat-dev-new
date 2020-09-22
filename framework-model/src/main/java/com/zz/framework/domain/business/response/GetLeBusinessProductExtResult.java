@@ -5,6 +5,7 @@ package com.zz.framework.domain.business.response;/**
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResultCode;
 import com.zz.framework.domain.business.ext.LeBusinessProductExt;
+import lombok.Data;
 
 /**
  * @ClassName GetLeBusinessProductExtResult
@@ -13,6 +14,7 @@ import com.zz.framework.domain.business.ext.LeBusinessProductExt;
  * @Date 2020/5/17 
  * @Version V1.0
  **/
+@Data
 public class GetLeBusinessProductExtResult extends ResponseResult {
 	private LeBusinessProductExt leBusinessProductExt;
 	public GetLeBusinessProductExtResult(ResultCode resultCode, LeBusinessProductExt leBusinessProductExt) {

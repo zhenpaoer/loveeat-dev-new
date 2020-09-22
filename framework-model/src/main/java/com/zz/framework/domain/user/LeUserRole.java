@@ -2,7 +2,7 @@ package com.zz.framework.domain.user;
 
 import javax.persistence.*;
 
-@Table(name = "le_user_role")
+
 public class LeUserRole {
     /**
      * 主键
@@ -14,13 +14,13 @@ public class LeUserRole {
     /**
      * 会员id
      */
-    @Column(name = "user_id")
+
     private Integer userId;
 
     /**
      * 角色id
      */
-    @Column(name = "role_id")
+
     private Integer roleId;
 
     /**

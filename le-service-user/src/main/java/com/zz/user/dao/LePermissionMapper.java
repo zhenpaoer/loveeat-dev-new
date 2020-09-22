@@ -4,9 +4,7 @@ package com.zz.user.dao;
 import com.zz.framework.common.dao.Mymapper;
 import com.zz.framework.domain.user.LePermission;
 import com.zz.framework.domain.user.LeRole;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,5 +22,11 @@ public interface LePermissionMapper extends Mymapper<LePermission> {
 			" </foreach> ",
 			" </script> "
 	})
-	public List<LePermission> getPermissionByIds(@Param("ids")List<Integer> ids);
+	@Results(id = "resultMap", value = {
+			@Result(property = "zuulPrefix", column = "zuul_prefix"),
+			@Result(property = "servicePrefix", column = "service_prefix")
+	})
+	public List<LePermission> getPermissionByIds(@Param("ids") List<Integer> ids);
+
+
 }

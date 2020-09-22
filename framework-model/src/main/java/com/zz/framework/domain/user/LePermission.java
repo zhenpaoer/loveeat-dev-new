@@ -3,7 +3,7 @@ package com.zz.framework.domain.user;
 import javax.persistence.*;
 import java.util.Date;
 
-@Table(name = "le_permission")
+
 public class LePermission {
     /**
      * 权限id
@@ -20,13 +20,13 @@ public class LePermission {
     /**
      * 网关前缀
      */
-    @Column(name = "zuul_prefix")
+
     private String zuulPrefix;
 
     /**
      * 服务前缀
      */
-    @Column(name = "service_prefix")
+
     private String servicePrefix;
 
     /**
@@ -37,13 +37,13 @@ public class LePermission {
     /**
      * 创建日期
      */
-    @Column(name = "createTime")
+
     private Date createtime;
 
     /**
      * 更新日期
      */
-    @Column(name = "updateTime")
+
     private Date updatetime;
 
     /**

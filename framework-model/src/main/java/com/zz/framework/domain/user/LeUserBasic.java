@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
-@Table(name = "le_user_basic")
+
 public class LeUserBasic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
