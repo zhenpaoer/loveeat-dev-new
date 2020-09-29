@@ -10,6 +10,7 @@
     <result column="zuul_prefix" jdbcType="VARCHAR" property="zuulPrefix" />
     <result column="service_prefix" jdbcType="VARCHAR" property="servicePrefix" />
     <result column="uri" jdbcType="VARCHAR" property="uri" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
     <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
   </resultMap>

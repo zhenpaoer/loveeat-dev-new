@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,7 @@ public class PictureController implements PicturlControllerApi {
 	//上传商家图片
 	@Override
 	@PostMapping(value = "uploadbuspic",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE},consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResultWithData uploadBusPic(@RequestParam MultipartFile file,@RequestParam String bid) {
 		ResponseResultWithData responseResultWithData = null;
 		try {
@@ -69,6 +71,7 @@ public class PictureController implements PicturlControllerApi {
 
 	//上传商品图片
 	@Override
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	@PostMapping(value = "uploadpropic",produces = {MediaType.APPLICATION_JSON_UTF8_VALUE},consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseResultWithData uploadProPic(@RequestPart MultipartFile file,@RequestParam String pid) {
 		ResponseResultWithData responseResultWithData = null;
@@ -105,6 +108,7 @@ public class PictureController implements PicturlControllerApi {
 	@Override
 	@PostMapping(value = "uploadpropiclist")
 	@ResponseBody
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResultWithData uploadProPicList(HttpServletRequest request, HttpServletResponse response) {
 		ResponseResultWithData responseResultWithData = null;
 		try {
@@ -143,6 +147,7 @@ public class PictureController implements PicturlControllerApi {
 	 */
 	@Override
 	@GetMapping(value = "preview/**")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public void previewPicture(HttpServletRequest request, HttpServletResponse response) {
 		// ISO-8859-1 ==> UTF-8 进行编码转换
 		String imgPath = extractPathFromPattern(request);
@@ -189,6 +194,7 @@ public class PictureController implements PicturlControllerApi {
 
 	@Override
 	@GetMapping(value = "delpic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public boolean removePic(@RequestParam String url) {
 		if (url.isEmpty()){
 			return false;

@@ -101,7 +101,6 @@ public class UserServiceImpl implements UserService {
 	public List<Integer> getLeUserRole(int id) {
 
 		List<Integer> roleIds= leUserRoleMapper.getRoleIdByUserId(id);
-		System.out.println("roleIds=="+roleIds);
 		return roleIds;
 	}
 

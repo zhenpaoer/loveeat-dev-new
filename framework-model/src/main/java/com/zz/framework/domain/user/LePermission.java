@@ -12,6 +12,9 @@ public class LePermission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
+    private String name;
+
     /**
      * 方法类型
      */

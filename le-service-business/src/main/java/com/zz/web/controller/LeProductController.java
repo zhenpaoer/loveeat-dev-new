@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,6 +57,7 @@ public class LeProductController implements ProductControllerApi {
 	//查询所有商品信息
 	@Override
 	@GetMapping("/all")
+	@PreAuthorize(value = "hasAnyRole('ROLE_ADMIN')")
 	public QueryResponseResult<LeProduct> getAllProduct() {
 		return leProductService.getAll();
 	}
@@ -69,6 +71,7 @@ public class LeProductController implements ProductControllerApi {
 
 	@Override
 	@PostMapping("saveproduct")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProduct(LeProduct leProduct, int bid) {
 		if (bid < 0 ){
 			return new ResponseResult(ProductCode.PRODUCT_CHECK_BID_FALSE);
@@ -96,6 +99,7 @@ public class LeProductController implements ProductControllerApi {
 
 	@Override
 	@PostMapping("saveproductmenu")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProductMenu(List<LeProductMenudetail> leProductMenudetails, int pid) {
 		if (pid < 0){
 			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
@@ -105,6 +109,7 @@ public class LeProductController implements ProductControllerApi {
 //, consumes = MediaType.MULTIPART_FORM_DATA_VALUE
 	@Override
 	@PostMapping(value = "saveproductpic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProductPic(@RequestPart MultipartFile file,@RequestParam String pid) {
 //		String pid = request.getParameter("pid");
 		if (Integer.parseInt(pid) < 0){
@@ -126,6 +131,7 @@ public class LeProductController implements ProductControllerApi {
 
 	@Override
 	@GetMapping("delproductpic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult delProductPic(String pid, String url) {
 		if (StringUtils.isNotEmpty(pid) && StringUtils.isNotEmpty(url)) {
 			return leProductService.delBusinessPic(pid, url);

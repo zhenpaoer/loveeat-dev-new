@@ -33,7 +33,6 @@ public class LeBusinessController implements BusinessControllerApi {
 	//获取某一个商家信息----
 	@Override
 	@GetMapping("/getBusById/{id}")
-	@PreAuthorize(value = "hasAnyRole('ROLE_USER','ROLE_ADMIN')")
 	public GetBusinessInfoResult getBusById(@PathVariable int id) {
 		if (id < 0 ){
 			return new GetBusinessInfoResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
@@ -48,7 +47,7 @@ public class LeBusinessController implements BusinessControllerApi {
 	//获取所有商家信息
 	@Override
 	@GetMapping("/getBusList")
-	@PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+	@PreAuthorize(value = "hasRole('ROLE_ADMIN')" )
 	public QueryResponseResult<LeBusiness> getBusList() {
 		return leBusinessService.getAll();
 	}
@@ -56,7 +55,7 @@ public class LeBusinessController implements BusinessControllerApi {
 	//添加商家信息
 	@Override
 	@PostMapping("/createBusiness")
-	@PreAuthorize(value="isAuthenticated()")//添加登录权限判断，登录才可以调用
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")//添加登录权限判断，登录才可以调用
 	public ResponseResult createBusiness(@RequestBody LeBusiness leBusiness) {
 		return leBusinessService.createLeBusiness(leBusiness);
 	}
