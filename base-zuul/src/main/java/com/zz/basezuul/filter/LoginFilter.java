@@ -16,10 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** 身份校验过虑器
  * @author Administrator
@@ -30,11 +27,20 @@ import java.util.Map;
 public class LoginFilter extends ZuulFilter {
     //日志
     private static Logger logger = LoggerFactory.getLogger(LoginFilter.class);
-
+    private static ArrayList<String> IGNORE_URIS = new ArrayList<>();
 
     @Autowired
     AuthService authService;
 
+    static {
+        IGNORE_URIS.add("/api/provider/hi");
+        IGNORE_URIS.add("/api/business/product/allforhome");
+        IGNORE_URIS.add("/api/business/product/getbyid");
+        IGNORE_URIS.add("/api/business//product/hi");
+        IGNORE_URIS.add("/api/business/businessdetail/getBusDeById");
+        IGNORE_URIS.add("/api/business/businessdetail/getBusDeList");
+        IGNORE_URIS.add("/api/business/business/getBusById");
+    }
     //过虑器的类型
     @Override
     public String filterType() {
@@ -56,6 +62,13 @@ public class LoginFilter extends ZuulFilter {
     @Override
     public boolean shouldFilter() {
         //返回true表示要执行此过虑器
+        String requestURI = RequestContext.getCurrentContext().getRequest().getRequestURI();
+        logger.info("shouldFilter Uri:",requestURI);
+        if (IGNORE_URIS.contains(requestURI)){
+            logger.info("shouldFilter false");
+            return false;
+        }
+        logger.info("shouldFilter true");
         return true;
     }
 

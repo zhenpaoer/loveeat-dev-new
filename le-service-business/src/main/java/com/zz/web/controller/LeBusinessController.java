@@ -32,8 +32,8 @@ public class LeBusinessController implements BusinessControllerApi {
 
 	//获取某一个商家信息----
 	@Override
-	@GetMapping("/getBusById/{id}")
-	public GetBusinessInfoResult getBusById(@PathVariable int id) {
+	@GetMapping("/getBusById")
+	public GetBusinessInfoResult getBusById(@RequestParam int id) {
 		if (id < 0 ){
 			return new GetBusinessInfoResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
 		}

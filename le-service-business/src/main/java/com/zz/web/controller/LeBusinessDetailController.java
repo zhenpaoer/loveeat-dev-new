@@ -45,8 +45,8 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 
 	//查询商家分店信息
 	@Override
-	@GetMapping("/getBusDeById/{id}")
-	public GetBusinessDetailResult getBusDeById(int id) {
+	@GetMapping("/getBusDeById")
+	public GetBusinessDetailResult getBusDeById(@RequestParam int id) {
 		if (id < 0 ){
 			return new GetBusinessDetailResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
 		}

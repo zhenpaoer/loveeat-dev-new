@@ -49,8 +49,8 @@ public class LeProductController implements ProductControllerApi {
 
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
-	@GetMapping("/{id}")
-	public GetLeProductPicMenuExtResult getProductById(@PathVariable("id") int id) {
+	@GetMapping("/getbyid")
+	public GetLeProductPicMenuExtResult getProductById(@RequestParam("id") int id) {
 		return leProductService.getLeProduct(id);
 	}
 
