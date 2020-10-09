@@ -1,6 +1,7 @@
 package com.zz.user.service;
 
 import com.zz.framework.common.model.response.ResponseResultWithData;
+import com.zz.framework.domain.user.LeUserBasic;
 import com.zz.framework.domain.user.LeUserRole;
 import com.zz.framework.domain.user.ext.AuthToken;
 import com.zz.framework.domain.user.ext.LeUserExt;
@@ -13,4 +14,7 @@ public interface UserService {
 
 	public List<Integer> getLeUserRole(int id);
 
+	public Integer createUser(LeUserBasic user);
+
+	public Integer createUserRole(LeUserRole leUserRole);
 }

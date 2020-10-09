@@ -104,4 +104,17 @@ public class UserServiceImpl implements UserService {
 		return roleIds;
 	}
 
+	@Override
+	public Integer createUser(LeUserBasic user) {
+		int insert = leUserBasicMapper.insert(user);
+		return insert;
+	}
+
+	//创建用户权限
+	@Override
+	public Integer createUserRole(LeUserRole leUserRole) {
+		return leUserRoleMapper.insert(leUserRole);
+	}
+
+
 }

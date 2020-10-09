@@ -9,6 +9,7 @@ import com.zz.framework.domain.user.response.LoginResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Created by zhangzhen
@@ -17,5 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface UserControllerApi {
 	@ApiOperation("根据账号查询用户信息")
 	public GetUserExtResult getUserext(String username);
+
+	@ApiOperation("注册账号")
+	public ResponseResult registerUser(String username, String phone,String nickname);
+
 
 }

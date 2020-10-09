@@ -8,6 +8,8 @@ import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetBusinessInfoResult;
+import com.zz.framework.domain.user.LeUserBasic;
+import com.zz.framework.domain.user.LeUserRole;
 import com.zz.framework.domain.user.ext.AuthToken;
 import com.zz.framework.domain.user.ext.LeUserExt;
 import com.zz.framework.domain.user.request.LoginRequest;
@@ -58,6 +60,42 @@ public class UserController implements UserControllerApi {
 		}
 		return userService.getUserExt(userName);
 	}
+
+	@Override
+	@PostMapping("reguser")
+	public ResponseResult registerUser(@RequestParam("username") String username,@RequestParam("phone") String phone,
+									   @RequestParam("nickname") String nickname) {
+		if (StringUtils.isEmpty(username)){
+			return new ResponseResult(UserCode.USER_USERNAME_NONE);
+		}
+		if (StringUtils.isEmpty(phone)){
+			return new ResponseResult(UserCode.USER_PHONE_NONE);
+		}
+		if (StringUtils.isEmpty(nickname)){
+			return new ResponseResult(UserCode.USER_NICKNAME_NONE);
+		}
+		LeUserBasic user = new LeUserBasic();
+		user.setNickname(nickname);
+		user.setUsername(username);
+		user.setPhone(phone);
+		GetUserExtResult userExt = userService.getUserExt(username);
+		if (userExt != null){
+			return new ResponseResult(UserCode.USER_ACCOUNT_EXISTS);
+		}
+		Integer result = userService.createUser(user);
+		if (result > 0 ){
+			//授权
+			LeUserRole role = new LeUserRole();
+			userExt = userService.getUserExt(username);
+			role.setUserId(userExt.getLeUserExt().getId());
+			role.setRoleId(2); // ROLE_USER 2
+			userService.createUserRole(role);
+			return new ResponseResult(CommonCode.SUCCESS);
+		}
+
+		return  new ResponseResult(UserCode.USER_RIG_CHECK_ERROR);
+	}
+
 
 	/*@Override
 	@GetMapping("createuser")
