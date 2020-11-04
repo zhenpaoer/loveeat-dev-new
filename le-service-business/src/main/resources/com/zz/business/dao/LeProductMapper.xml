@@ -53,4 +53,20 @@
       state = 1 AND `status` = '审核通过'
 
   </select>
+
+    <select id="getHomeProduct" resultType="com.zz.framework.domain.business.LeProduct" parameterType="java.util.Map">
+        SELECT
+        id,businessname,productname,bid,createtime,updatetime,state,status,foodtype,describ,originalprice,bargainprice,bargainpersonsum,issale,version,homepicture,rule,usetime,lon,lat,
+        (st_distance (point (lon, lat),point(#{lon,jdbcType=VARCHAR},#{lat,jdbcType=VARCHAR}) ) / 0.0111) as distance
+        FROM le_product
+        <where>
+            state = 1 and `status` = '审核通过'
+        </where>
+        <if test="distance != null || distance != '' " >
+            HAVING distance &lt;= #{distance,jdbcType=VARCHAR}
+        </if>
+        ORDER BY distance asc
+    </select>
+
+
 </mapper>

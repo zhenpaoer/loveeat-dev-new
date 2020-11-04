@@ -38,7 +38,18 @@ public class LeUserBasic {
      * 头像
      */
     private String userpic;
-
+    /**
+     * 经度
+     */
+    private String lon;
+    /**
+     * 纬度
+     */
+    private String lat;
+    /**
+     * 地址
+     */
+    private String address;
     /**
      * @return id
      */

@@ -33,7 +33,7 @@ public interface ProductControllerApi {
 
 	//查询首页商品信息
 	@ApiOperation("查询首页商品信息")
-	public QueryResponseResult<LeProduct> getAllForHome();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance);
 
 	//保存商品主要信息
 	@ApiOperation("保存商品主要信息")

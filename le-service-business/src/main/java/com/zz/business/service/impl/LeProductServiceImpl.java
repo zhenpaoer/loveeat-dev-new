@@ -2,6 +2,9 @@ package com.zz.business.service.impl;/**
  * Created by zhangzhen on 2020/5/17
  */
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zz.business.dao.LeProductMapper;
 import com.zz.business.dao.LeProductPicurlMapper;
 import com.zz.business.feign.PictureService;
@@ -32,6 +35,7 @@ import sun.rmi.runtime.Log;
 import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,13 +96,30 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//给首页查找所有商品
 	@Override
-	public QueryResponseResult<LeProduct> getAllForHome() {
-		List<LeProduct> leProducts = leProductMapper.selectAll();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance) {
+		PageHelper.startPage(pageNo, pageSize);
+		HashMap<String,String> map = new HashMap<>();
+		map.put("lon",lon);
+		map.put("lat",lat);
+		map.put("distance",distance);
+
+		List<LeProduct> leProducts = leProductMapper.getHomeProduct(map);
 		//筛选审核通过和启用状态的
-		List<LeProduct> filterLeProducts = leProducts.parallelStream().filter(leProduct -> leProduct.getState() != null && leProduct.getState() == 1 && "审核通过".equals(leProduct.getStatus())).collect(Collectors.toList());
+		leProducts.stream().forEach(item -> {
+			double distance1 = Math.floor((Double.parseDouble(item.getDistance())));
+			double distance2 = Double.parseDouble(item.getDistance()) ;
+			if (distance1 < 1){
+				item.setDistance("≈"+(int)Math.floor(distance2 * 1000)+"m"); //取整数
+			}else {
+				item.setDistance("≈"+(double) Math.round(distance2 * 100) / 100+"km");
+			}
+		});
+		PageInfo pageInfo = new PageInfo(leProducts);
 		QueryResult<LeProduct> QueryResult = new QueryResult<LeProduct>();
-		QueryResult.setList(filterLeProducts);
-		QueryResult.setTotal(filterLeProducts.size());
+		QueryResult.setList(leProducts);
+		QueryResult.setPageNo(pageNo);
+		QueryResult.setPageSize(pageSize);
+		QueryResult.setTotal(leProducts.size());
 		QueryResponseResult<LeProduct> responseResult = new QueryResponseResult<>(CommonCode.SUCCESS,QueryResult);
 
 		return responseResult;

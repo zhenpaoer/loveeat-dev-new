@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @ClassName LeBusinessDetailController
@@ -46,7 +47,8 @@ public class LeProductController implements ProductControllerApi {
 	PictureService pictureService;
 	@Autowired
 	public ProviderService providerService;
-
+	private Pattern lonPattern = Pattern.compile("^[\\-\\+]?(0?\\d{1,2}\\.\\d{1,5}|1[0-7]?\\d{1}\\.\\d{1,5}|180\\.0{1,5})$");
+	private Pattern latPattern = Pattern.compile("^[\\-\\+]?([0-8]?\\d{1}\\.\\d{1,5}|90\\.0{1,5})$");
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
 	@GetMapping("/getbyid")
@@ -65,8 +67,20 @@ public class LeProductController implements ProductControllerApi {
 	//查询首页商品信息
 	@Override
 	@GetMapping("/allforhome")
-	public QueryResponseResult<LeProduct> getAllForHome() {
-		return leProductService.getAllForHome();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance) {
+		if (pageSize <= 0 ){
+			pageSize = 1;
+		}
+		if (pageNo <= 0 ){
+			pageSize = 1;
+		}
+		if (!StringUtils.isNotEmpty(lon)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+		}
+		if (!StringUtils.isNotEmpty(lat)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+		}
+		return leProductService.getAllForHome(pageSize,pageNo,lon,lat,distance);
 	}
 
 	@Override
@@ -146,6 +160,26 @@ public class LeProductController implements ProductControllerApi {
 		String hi = providerService.hi(msg);
 		if (StringUtils.isNotEmpty(hi)) return hi;
 		return "111";
+	}
+
+	/**
+	 * 校验经度 对则返回true 错返回false
+	 *
+	 * @param lon
+	 * @return
+	 */
+	private boolean checkLon(String lon) {
+		return (lonPattern.matcher(lon).matches());
+	}
+
+	/**
+	 * 校验纬度 对则返回true 错返回false
+	 *
+	 * @param lat
+	 * @return
+	 */
+	private boolean checkLat(String lat) {
+		return (latPattern.matcher(lat).matches());
 	}
 
 }

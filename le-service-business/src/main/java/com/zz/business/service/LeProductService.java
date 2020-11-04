@@ -20,7 +20,7 @@ public interface LeProductService {
 	public  QueryResponseResult<LeProduct> getAll();
 
 	//获取所有商品信息
-	public QueryResponseResult<LeProduct> getAllForHome();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance);
 
 	//创建商品信息
 	public ResponseResult createLeProduct(LeProduct leProduct);

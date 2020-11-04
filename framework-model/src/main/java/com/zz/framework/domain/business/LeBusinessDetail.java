@@ -68,4 +68,8 @@ public class LeBusinessDetail {
      * 商家图片url
      */
     private String url;
+    //经度
+    private String lon;
+    //纬度
+    private String lat;
 }

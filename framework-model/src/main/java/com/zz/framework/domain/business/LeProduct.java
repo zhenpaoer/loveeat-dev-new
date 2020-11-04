@@ -70,5 +70,19 @@ public class LeProduct {
      */
     private Integer issale;
 
+    //首页图片
+    private String homepicture;
 
+    //商家自定义规则
+    private String rule;
+
+    //商品使用时间
+    private String usetime;
+
+    //经度
+    private String lon;
+    //纬度
+    private String lat;
+    //距离 米
+    private String distance;
 }

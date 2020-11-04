@@ -34,6 +34,7 @@ public enum ProductCode implements ResultCode {
 	PRODUCT_SAVE_ERROR(false,1015,"商品保存失败，请重试！"),
 	PRODUCT_DELETE_PICTURE_FALSE(false,1016,"删除商品图片失败！"),
 	PRODUCT_CHECK_MENU_ERROR(false,1017,"商品菜单数量校验失败，请重试！"),
+	PRODUCT_CHECK_LOCATION_ERROR(false,1018,"获取用户位置失败，请重试！"),
 	PRODUCT_OTHER_ERROR(false,1099,"其他异常，请重试！");
 
 	//操作代码
