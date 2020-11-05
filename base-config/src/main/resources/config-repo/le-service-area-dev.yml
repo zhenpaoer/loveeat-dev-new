@@ -12,7 +12,7 @@ spring:
         url: http://localhost:9002
   datasource:
     druid:
-      url: jdbc:mysql://localhost:3306/loveeat?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      url: jdbc:mysql://localhost:3306/loveeat?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=true
       username: root
       password: root
       initial-size: 1
