@@ -1,0 +1,28 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: le-service-area
+  zipkin:
+    base-url: http://localhost:9003
+  boot:
+    admin:
+      client:
+        url: http://localhost:9002
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/loveeat?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      username: root
+      password: root
+      initial-size: 1
+      max-active: 20
+      test-on-borrow: true
+      driver-class-name: com.mysql.jdbc.Driver
+eureka:
+  client:
+    fetch-registy: true
+    service-url:
+      # Eureka注册中心连接地址
+      # 如果注册中心地址配置的域名，这里使用 http://域名/eureka/ 格式
+      defaultZone: http://localhost:9000/eureka/
