@@ -40,6 +40,7 @@ zuul:
     le-service-business: /api/business/**
     le-service-user: /api/user/**
     le-service-auth: /api/auth/**
+    le-service-area: /api/area/**
 
   host:
     #以下两个配置也是解决zuul超时的
