@@ -25,4 +25,9 @@ public interface AreaControllerApi {
 	@ApiOperation("查询所有城市")
 	public ResponseResultWithData getAllCitys();
 
+
+	//根据商圈的id更新热值
+	@ApiOperation("根据商圈的id更新热值")
+	ResponseResult updateAreaSearchCountById(int id,int searchcount);
+
 }

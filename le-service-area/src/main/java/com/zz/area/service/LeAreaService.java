@@ -3,6 +3,7 @@ package com.zz.area.service;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.area.response.GetLeAreaResult;
+import org.apache.ibatis.annotations.Select;
 
 
 public interface LeAreaService {
@@ -17,4 +18,7 @@ public interface LeAreaService {
 
 	//查询所有城市
 	public ResponseResultWithData getAllCitys();
+
+	//根据商圈的id更新热值
+	ResponseResult updateAreaSearchCountById(int id,int searchcount);
 }

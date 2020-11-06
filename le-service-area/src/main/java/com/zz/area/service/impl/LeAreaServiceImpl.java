@@ -76,4 +76,11 @@ public class LeAreaServiceImpl  implements LeAreaService {
 		data.put("allCitys",allCitys);
 		return new ResponseResultWithData(CommonCode.SUCCESS, data);
 	}
+
+	@Override
+	public ResponseResult updateAreaSearchCountById(int id, int searchcount) {
+		leAreaMapper.updateAreaSearchCountById(id, searchcount);
+		return new ResponseResult(CommonCode.SUCCESS);
+
+	}
 }

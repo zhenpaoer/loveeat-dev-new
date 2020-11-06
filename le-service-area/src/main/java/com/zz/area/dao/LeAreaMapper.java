@@ -85,4 +85,8 @@ public interface LeAreaMapper extends Mymapper<LeArea> {
 	// 这个示例的意思就是，从instance_id这个字段把数据放到传入对象instanceDto的instanceId成员变量里面。
 	//@Options注解会自动为表的主键字段设置自增的值，并把它赋值给作为入参的DTO，进而可以直接从这个对象中获取新生成记录的主键
 
+
+	//根据商圈的id更新热值
+	@Select("update le_area set searchcount =  #{searchcount} + 1 WHERE searchcount = #{searchcount} and id = #{id}")
+	void updateAreaSearchCountById(int id,int searchcount);
 }

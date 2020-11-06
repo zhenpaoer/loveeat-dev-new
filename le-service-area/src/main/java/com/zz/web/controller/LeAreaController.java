@@ -66,4 +66,13 @@ public class LeAreaController  implements AreaControllerApi {
 	public ResponseResultWithData getAllCitys() {
 		return leAreaService.getAllCitys();
 	}
+
+	@Override
+	@RequestMapping("/updateAreaSearchCountById")
+	public ResponseResult updateAreaSearchCountById(int id, int searchcount) {
+		if (id<0 || searchcount<0){
+			return new ResponseResult(AreaCode.AREA_CHECK_ID_FALSE);
+		}
+		return leAreaService.updateAreaSearchCountById(id,searchcount);
+	}
 }
