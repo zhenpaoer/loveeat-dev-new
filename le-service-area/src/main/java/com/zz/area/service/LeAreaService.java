@@ -1,10 +1,8 @@
 package com.zz.area.service;
 
 import com.zz.framework.common.model.response.ResponseResult;
-import com.zz.framework.domain.area.ext.LeAreaNode;
 import com.zz.framework.domain.area.response.GetLeAreaResult;
 
-import java.util.List;
 
 public interface LeAreaService {
 	//根据父节点id插入

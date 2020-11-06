@@ -24,9 +24,12 @@ public class LeAreaServiceImpl  implements LeAreaService {
 		LeArea leArea = new LeArea();
 		leArea.setArea(area);
 		leArea.setParentId(parentId);
+		leArea.setSearchcount(0);
 		leArea.setCreatetime(LocalDateTime.now());
 		leArea.setUpdatetime(LocalDateTime.now());
-		int insert = leAreaMapper.insert(leArea);
+
+		int insert = leAreaMapper.insertArea(leArea);
+//		int insert = leAreaMapper.insertUseGeneratedKeys(leArea);
 		if (insert > 0){
 			return new ResponseResult(CommonCode.SUCCESS);
 		}
@@ -36,7 +39,7 @@ public class LeAreaServiceImpl  implements LeAreaService {
 	//根据城市id查询，如果是0则查询所有
 	@Override
 	public GetLeAreaResult getAreaById(int id) {
-		List<LeAreaNode> areas = leAreaMapper.getAreaById(id);
+		List<LeAreaNode> areas = leAreaMapper.getCityAreaById(id);
 		return new GetLeAreaResult(CommonCode.SUCCESS,areas);
 	}
 }
