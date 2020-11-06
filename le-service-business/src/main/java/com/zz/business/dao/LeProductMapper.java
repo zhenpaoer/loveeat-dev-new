@@ -14,5 +14,5 @@ public interface LeProductMapper extends Mymapper<LeProduct> {
 	//用户展示的商品列表
 	List<LeProduct> getAllProductForUser();
 	//首页展示的商品列表 包括计算坐标
-	List<LeProduct> getHomeProduct(HashMap<String,String> map);
+	List<LeProduct> getHomeProduct(HashMap<String,Object> map);
 }

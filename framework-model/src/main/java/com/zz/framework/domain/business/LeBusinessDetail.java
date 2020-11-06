@@ -72,4 +72,10 @@ public class LeBusinessDetail {
     private String lon;
     //纬度
     private String lat;
+    //城市id
+    private int cityId;
+    //行政区id
+    private int regionId;
+    //商圈id
+    private int areaId;
 }

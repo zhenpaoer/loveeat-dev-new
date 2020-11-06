@@ -96,14 +96,27 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//给首页查找所有商品
 	@Override
-	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance) {
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId) {
+		//筛选出来商家
+		List<LeBusinessDetail> businessByAreaConditions = leBusinessDetailService.getBusinessByAreaConditions(cityId, regionId, areaId);
+		List<Integer> bids = businessByAreaConditions.parallelStream().map(LeBusinessDetail::getId).collect(Collectors.toList());
+		log.info("首页获取商家ids={}",bids);
+		if (bids.size() == 0 ){
+			return new QueryResponseResult<>(CommonCode.SUCCESS,new QueryResult());
+		}
 		PageHelper.startPage(pageNo, pageSize);
-		HashMap<String,String> map = new HashMap<>();
+		HashMap<String,Object> map = new HashMap<>();
 		map.put("lon",lon);
 		map.put("lat",lat);
 		map.put("distance",distance);
+		map.put("ids",bids);
 
 		List<LeProduct> leProducts = leProductMapper.getHomeProduct(map);
+		List<Integer> pids = leProducts.parallelStream().map(LeProduct::getId).collect(Collectors.toList());
+		log.info("首页获取商品ids={}",pids);
+		if (pids.size() == 0 ){
+			return new QueryResponseResult<>(CommonCode.SUCCESS,new QueryResult());
+		}
 		//筛选审核通过和启用状态的
 		leProducts.stream().forEach(item -> {
 			double distance1 = Math.floor((Double.parseDouble(item.getDistance())));
