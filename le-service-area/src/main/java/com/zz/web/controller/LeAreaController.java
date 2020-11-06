@@ -3,6 +3,7 @@ package com.zz.web.controller;
 import com.zz.area.service.LeAreaService;
 import com.zz.framework.api.area.AreaControllerApi;
 import com.zz.framework.common.model.response.ResponseResult;
+import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.area.response.AreaCode;
 import com.zz.framework.domain.area.response.GetLeAreaResult;
 import org.apache.commons.lang3.StringUtils;
@@ -47,5 +48,22 @@ public class LeAreaController  implements AreaControllerApi {
 			return new GetLeAreaResult(AreaCode.AREA_CHECK_ID_FALSE,null);
 		}
 		return leAreaService.getAreaById(id);
+	}
+
+	//根据城市查询全部商圈及三个热点商圈
+	@Override
+	@GetMapping("/getAllAndHotAreasByCityId")
+	public ResponseResultWithData getAllAndHotAreasByCittId(int id) {
+		if (id<0){
+			return new ResponseResultWithData(AreaCode.AREA_CHECK_ID_FALSE,null);
+		}
+		return leAreaService.getAllAndHotAreasByCittId(id);
+	}
+
+	//查询所有城市
+	@Override
+	@GetMapping("/getAllCitys")
+	public ResponseResultWithData getAllCitys() {
+		return leAreaService.getAllCitys();
 	}
 }

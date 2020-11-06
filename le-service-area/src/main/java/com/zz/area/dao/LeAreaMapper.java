@@ -12,10 +12,14 @@ import java.util.List;
 
 @Repository
 public interface LeAreaMapper extends Mymapper<LeArea> {
+
+	//查询所有城市
+	@Select("SELECT id,area,parentId FROM le_area WHERE parentId = 0")
+	List<LeArea> getAllCitys();
+
+
+
 	//根据城市id查询树形的城市-行政区-商圈
-
-
-	//查城市
 	@Select("SELECT id,parentId,area FROM le_area WHERE parentId = #{id}")
 	@Results(id = "getCityAreaById",value = {
 			@Result(id = true,column = "id",property = "id"),
@@ -39,19 +43,31 @@ public interface LeAreaMapper extends Mymapper<LeArea> {
 			@Result(id = true,column = "id",property = "id"),
 			@Result(property = "area",column = "area"),
 			@Result(property = "parentId",column = "parentId"),
-			@Result(property = "children",column = "parentId"
+			@Result(property = "children",column = "id"
 					,many=@Many(select="com.zz.area.dao.LeAreaMapper.getAreaById",fetchType= FetchType.EAGER))
 	})
 	List<LeAreaNode> getAdministrativeRegionById(int id);
 
 	//查商圈
-	@Select("SELECT id,parentId,area FROM le_area WHERE parentId in (SELECT id FROM le_area WHERE parentId = #{id})")
-	@Results(id = "areaResultMap", value = {
+	@Select("SELECT id,parentId,area FROM le_area WHERE parentId = #{id}")
+	@Results(id = "getAreaById", value = {
 			@Result(id = true,property = "id", column = "id"),
 			@Result(property = "area", column = "area"),
 			@Result(property = "parentId",column = "parentId")
 	})
 	List<LeAreaNode> getAreaById(int id);
+
+	//根据城市查询全部商圈及三个热点商圈
+	@Select("SELECT id,parentId,area,searchcount FROM le_area WHERE parentId in (SELECT id FROM le_area WHERE parentId = #{id}) order by searchcount desc")
+	@Results(id = "getAllAndHotAreasByCittId", value = {
+			@Result(id = true,property = "id", column = "id"),
+			@Result(property = "area", column = "area"),
+			@Result(property = "searchcount", column = "searchcount"),
+			@Result(property = "parentId",column = "parentId")
+	})
+	List<LeAreaNode> getAllAndHotAreasByCittId(int id);
+
+
 
 
 //	insert into tbl_user (name, age) values (#{name}, #{age})

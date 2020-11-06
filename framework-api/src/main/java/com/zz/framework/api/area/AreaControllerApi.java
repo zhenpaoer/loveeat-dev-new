@@ -16,4 +16,13 @@ public interface AreaControllerApi {
 	//查询区域
 	@ApiOperation("查询区域")
 	public GetLeAreaResult getLeAreasById(int id);
+
+	//根据城市查询全部商圈及三个热点商圈
+	@ApiOperation("根据城市查询全部商圈及三个热点商圈")
+	public ResponseResultWithData getAllAndHotAreasByCittId(int id);
+
+	//查询所有城市
+	@ApiOperation("查询所有城市")
+	public ResponseResultWithData getAllCitys();
+
 }
