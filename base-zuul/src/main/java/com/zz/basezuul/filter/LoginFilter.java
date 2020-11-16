@@ -40,6 +40,11 @@ public class LoginFilter extends ZuulFilter {
         IGNORE_URIS.add("/api/business/businessdetail/getBusDeById");
         IGNORE_URIS.add("/api/business/businessdetail/getBusDeList");
         IGNORE_URIS.add("/api/business/business/getBusById");
+        //地区服务
+        IGNORE_URIS.add("/api/area/area/getAreaById");
+        IGNORE_URIS.add("/api/area/area/getAllCitys");
+        IGNORE_URIS.add("/api/area/area/getAllAndHotAreasByCityId");
+        IGNORE_URIS.add("/api/area/area/updateAreaSearchCountById");
     }
     //过虑器的类型
     @Override

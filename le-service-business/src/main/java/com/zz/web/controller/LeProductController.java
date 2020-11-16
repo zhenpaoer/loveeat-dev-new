@@ -14,6 +14,7 @@ import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.picture.response.PictureCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +38,7 @@ import java.util.regex.Pattern;
  * @Date 2020/5/17
  * @Version V1.0
  **/
-
+@Slf4j
 @RestController
 @RequestMapping("product")
 public class LeProductController implements ProductControllerApi {
@@ -68,16 +69,17 @@ public class LeProductController implements ProductControllerApi {
 	@Override
 	@GetMapping("/allforhome")
 	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId) {
+		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={}",pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId);
 		if (pageSize <= 0 ){
 			pageSize = 1;
 		}
 		if (pageNo <= 0 ){
 			pageSize = 1;
 		}
-		if (!StringUtils.isNotEmpty(lon)){
+		if (StringUtils.isEmpty(lon)){
 			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
 		}
-		if (!StringUtils.isNotEmpty(lat)){
+		if (StringUtils.isEmpty(lat)){
 			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
 		}
 		if ((cityId + regionId + areaId) == 0 ){

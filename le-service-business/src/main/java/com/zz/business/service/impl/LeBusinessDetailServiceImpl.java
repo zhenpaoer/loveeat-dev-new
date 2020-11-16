@@ -152,17 +152,20 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 	@Override
 	public List<LeBusinessDetail> getBusinessByAreaConditions(int cityId, int regionId, int areaId){
 		List<LeBusinessDetail> getBusinessbyId = new ArrayList<>();
-		//查商圈 areid是参数
+/*		cityid一定不为空，
+		如果reigionid为空 areaid为空 则查询城市全部的
+		如果regionId为空  areaid不为空 则查询城市某个商圈的
+		如果regionid不为空 areaid为空 则查询行政区的
+		如果regionid不为空 areid不为空 则查询商圈的
+		*/
 		if (areaId != 0){
 			getBusinessbyId = leBusinessDetailMapper.getByAreaId(areaId);
-		}
-		//查区域 regionId是参数
-		if (areaId == 0){
-			getBusinessbyId = leBusinessDetailMapper.getByRegionId(regionId);
-		}
-		//查城市 cityid是参数
-		if(regionId == 0){
-			getBusinessbyId = leBusinessDetailMapper.getByCityId(cityId);
+		}else {
+			if (regionId == 0){
+				getBusinessbyId = leBusinessDetailMapper.getByCityId(cityId);
+			}else {
+				getBusinessbyId = leBusinessDetailMapper.getByRegionId(regionId);
+			}
 		}
 		return getBusinessbyId;
 	}
