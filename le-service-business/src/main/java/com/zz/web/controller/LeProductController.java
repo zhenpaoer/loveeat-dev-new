@@ -66,10 +66,15 @@ public class LeProductController implements ProductControllerApi {
 	}
 
 	//查询首页商品信息
+//	productType: String(0),       //商品类型
+//	priceType: String(0),         //价格类型
+//	sortType: String(0),          //排序规则
 	@Override
 	@GetMapping("/allforhome")
-	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId) {
-		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={}",pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId);
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,
+														int cityId,int regionId,int areaId,String productType,String priceType, String sortType) {
+		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={},productType={},priceType={},sortType={}",
+				pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType,sortType);
 		if (pageSize <= 0 ){
 			pageSize = 1;
 		}
@@ -85,7 +90,10 @@ public class LeProductController implements ProductControllerApi {
 		if ((cityId + regionId + areaId) == 0 ){
 			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
 		}
-		return leProductService.getAllForHome(pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId);
+		if ("".equals(productType) || "".equals(priceType) || "".equals(sortType)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
+		}
+		return leProductService.getAllForHome(pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType, sortType);
 	}
 
 	@Override

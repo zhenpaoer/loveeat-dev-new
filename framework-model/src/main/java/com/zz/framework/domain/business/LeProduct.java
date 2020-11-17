@@ -66,7 +66,7 @@ public class LeProduct {
     private Integer bargainpersonsum;
 
     /**
-     * 是否已售 1已抢购 2未抢购
+     * 是否已售  1未砍价  2已砍价 3已抢购
      */
     private Integer issale;
 

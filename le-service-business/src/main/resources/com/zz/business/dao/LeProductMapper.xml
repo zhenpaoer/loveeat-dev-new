@@ -66,11 +66,19 @@
             <foreach collection="ids"  item='id' open='(' separator=',' close=')'>
                 #{id}
             </foreach>
+            <if test="productType !=null and productType != ''">
+                and foodtype = #{productType}
+            </if>
+            <if test="priceStart != null and priceStart != '' and priceEnd != null and priceEnd != ''">
+                and bargainprice between #{priceStart} and #{priceEnd}
+            </if>
         </where>
         <if test="distance != null || distance != '' " >
             HAVING distance &lt;= #{distance,jdbcType=VARCHAR}
         </if>
-        ORDER BY distance asc
+        ORDER BY ${sortType}
+
+
     </select>
 
 

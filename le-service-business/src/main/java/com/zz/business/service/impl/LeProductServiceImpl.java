@@ -16,10 +16,7 @@ import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.QueryResult;
 import com.zz.framework.common.model.response.ResponseResult;
-import com.zz.framework.domain.business.LeBusinessDetail;
-import com.zz.framework.domain.business.LeProduct;
-import com.zz.framework.domain.business.LeProductMenudetail;
-import com.zz.framework.domain.business.LeProductPicurl;
+import com.zz.framework.domain.business.*;
 import com.zz.framework.domain.business.ext.LeProductMenuNode;
 import com.zz.framework.domain.business.ext.LeProductPicMenuExt;
 import com.zz.framework.domain.business.response.BusinessCode;
@@ -34,7 +31,10 @@ import org.springframework.stereotype.Service;
 import sun.rmi.runtime.Log;
 import tk.mybatis.mapper.entity.Example;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +61,8 @@ public class LeProductServiceImpl implements LeProductService {
 	PictureService pictureService;
 	@Autowired
 	LeProductPicurlMapper leProductPicurlMapper;
+	@Autowired
+	LeBargainLogServiceImpl leBargainLogService;
 
 
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
@@ -96,7 +98,8 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//给首页查找所有商品
 	@Override
-	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId) {
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId
+														,String productType,String priceType, String sortType) {
 		//筛选出来商家
 		List<LeBusinessDetail> businessByAreaConditions = leBusinessDetailService.getBusinessByAreaConditions(cityId, regionId, areaId);
 		List<Integer> bids = businessByAreaConditions.parallelStream().map(LeBusinessDetail::getId).collect(Collectors.toList());
@@ -105,11 +108,67 @@ public class LeProductServiceImpl implements LeProductService {
 			return new QueryResponseResult<>(CommonCode.SUCCESS,new QueryResult());
 		}
 		PageHelper.startPage(pageNo, pageSize);
+
 		HashMap<String,Object> map = new HashMap<>();
 		map.put("lon",lon);
 		map.put("lat",lat);
 		map.put("distance",distance);
 		map.put("ids",bids);
+		if (!"0".equals(productType)){
+			map.put("productType",Integer.parseInt(productType));
+		}else {
+			map.put("productType",null);
+		}
+		//价格类型
+//		type 0:全部 1: 50元以下 2:50-100 3:100-150 4:150-200  5:200元以上
+		int type = Integer.parseInt(priceType);
+		BigDecimal priceStart = null;
+		BigDecimal priceEnd = null;
+		if (type == 1){
+			priceEnd = new BigDecimal(50);
+		}else if (type == 2 ){
+			priceStart = new BigDecimal(50);
+			priceEnd = new BigDecimal(100);
+		} else if (type == 3 ){
+			priceStart = new BigDecimal(100);
+			priceEnd = new BigDecimal(150);
+		}else if (type == 4 ){
+			priceStart = new BigDecimal(150);
+			priceEnd = new BigDecimal(200);
+		}else if (type == 5 ){
+			priceStart = new BigDecimal(200);
+			priceEnd = new BigDecimal(10000);
+		}else {
+			priceStart = new BigDecimal(0);
+			priceEnd = new BigDecimal(10000);
+		}
+		map.put("priceStart",priceStart);
+		map.put("priceEnd",priceEnd);
+		//排序
+//		sortType 0:智能排序 1：好评优先，2距离优先 3价格低到高 4价格高到低
+		int sorttype = Integer.parseInt(sortType);
+//		<if test="orderBy != null">
+//				order by
+//				<choose>
+//        <when test='orderBy=="age"'>age</when>
+//        <when test='orderBy=="size"'>size</when>
+//        <when test='orderBy=="price"'>price</when>
+//        <otherwise> ${orderBy} </otherwise>
+//    </choose>
+//</if>
+		if (sorttype == 1){ //加评分系统 字段 降序
+
+		}else if (sorttype == 2){
+			map.put("sortType","distance"); //升序
+		}else if (sorttype == 3){
+			map.put("sortType","bargainprice asc"); //升序
+		}else if (sorttype == 4){
+			map.put("sortType","bargainprice desc"); //降序
+		}else {
+			//距离最近 价格低到高
+			map.put("sortType","distance asc,bargainprice asc"); //降序
+			log.info("我这里是智能排序");
+		}
 
 		List<LeProduct> leProducts = leProductMapper.getHomeProduct(map);
 		List<Integer> pids = leProducts.parallelStream().map(LeProduct::getId).collect(Collectors.toList());
@@ -117,14 +176,27 @@ public class LeProductServiceImpl implements LeProductService {
 		if (pids.size() == 0 ){
 			return new QueryResponseResult<>(CommonCode.SUCCESS,new QueryResult());
 		}
-		//筛选审核通过和启用状态的
+		int uid = 1;
+		List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
+		List<Integer> hasBarginPidsToday = new ArrayList<>();
+		if (listByPidUidDate.size() >0){
+			hasBarginPidsToday = listByPidUidDate.parallelStream().map(LeBargainLog::getPid).collect(Collectors.toList());
+		}
+		log.info("首页获取已砍价记录pids={}",hasBarginPidsToday);
+		//修改距离显示
+		List<Integer> finalHasBarginPidsToday = hasBarginPidsToday;
 		leProducts.stream().forEach(item -> {
+			if (finalHasBarginPidsToday.size() > 0){
+				if (item.getIssale() != 3 && finalHasBarginPidsToday.contains(item.getId())){
+					item.setIssale(2);
+				}
+			}
 			double distance1 = Math.floor((Double.parseDouble(item.getDistance())));
 			double distance2 = Double.parseDouble(item.getDistance()) ;
 			if (distance1 < 1){
-				item.setDistance("≈"+(int)Math.floor(distance2 * 1000)+"m"); //取整数
+				item.setDistance((int)Math.floor(distance2 * 1000)+"m"); //取整数
 			}else {
-				item.setDistance("≈"+(double) Math.round(distance2 * 100) / 100+"km");
+				item.setDistance((double) Math.round(distance2 * 100) / 100+"km");
 			}
 		});
 		PageInfo pageInfo = new PageInfo(leProducts);
