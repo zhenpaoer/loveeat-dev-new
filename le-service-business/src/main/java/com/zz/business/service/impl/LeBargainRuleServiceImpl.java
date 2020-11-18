@@ -6,6 +6,8 @@ import com.zz.framework.domain.business.LeBargainRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class LeBargainRuleServiceImpl implements LeBargainRuleService {
 	@Autowired
@@ -21,5 +23,10 @@ public class LeBargainRuleServiceImpl implements LeBargainRuleService {
 		}
 
 		return leBargainRuleMapper.getByDiscount(discount);
+	}
+
+	@Override
+	public List<LeBargainRule> getAll() {
+		return leBargainRuleMapper.getAll1();
 	}
 }

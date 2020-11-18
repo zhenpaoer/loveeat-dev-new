@@ -2,6 +2,7 @@ package com.zz.framework.api.business;
 
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;
+import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.business.LeProduct;
 import com.zz.framework.domain.business.LeProductMenudetail;
 import com.zz.framework.domain.business.LeProductPicurl;
@@ -50,4 +51,8 @@ public interface ProductControllerApi {
 	//商品图片删除
 	@ApiOperation("商品图片删除")
 	public ResponseResult delProductPic(String pid , String url);
+
+	//商品砍价
+	@ApiOperation("商品图片删除")
+	public ResponseResultWithData bargainByPid(int pid);
 }

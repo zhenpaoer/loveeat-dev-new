@@ -166,6 +166,16 @@ public class LeProductController implements ProductControllerApi {
 		return new ResponseResult(BusinessCode.BUSINESS_CHECK_ID_FALSE);
 	}
 
+	//对商品砍价
+	@Override
+	@GetMapping("/bargain")
+	public ResponseResultWithData bargainByPid(int pid) {
+		if (pid <= 0){
+			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+		}
+		return leProductService.bargain(pid) ;
+	}
+
 	//测试服务提供者
 	@GetMapping("/hi")
 	public String hi(@RequestParam("msg") String msg){

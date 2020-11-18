@@ -8,14 +8,8 @@ import com.github.pagehelper.PageInfo;
 import com.zz.business.dao.LeProductMapper;
 import com.zz.business.dao.LeProductPicurlMapper;
 import com.zz.business.feign.PictureService;
-import com.zz.business.service.LeBusinessDetailService;
-import com.zz.business.service.LeProductMenudetailService;
-import com.zz.business.service.LeProductService;
-import com.zz.business.service.LeProductUrlService;
-import com.zz.framework.common.model.response.CommonCode;
-import com.zz.framework.common.model.response.QueryResponseResult;
-import com.zz.framework.common.model.response.QueryResult;
-import com.zz.framework.common.model.response.ResponseResult;
+import com.zz.business.service.*;
+import com.zz.framework.common.model.response.*;
 import com.zz.framework.domain.business.*;
 import com.zz.framework.domain.business.ext.LeProductMenuNode;
 import com.zz.framework.domain.business.ext.LeProductPicMenuExt;
@@ -23,6 +17,9 @@ import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.framework.domain.business.response.ProductCode;
 import jdk.nashorn.internal.runtime.options.LoggingOption;
+import lombok.Data;
+import lombok.Synchronized;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +34,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +62,11 @@ public class LeProductServiceImpl implements LeProductService {
 	LeProductPicurlMapper leProductPicurlMapper;
 	@Autowired
 	LeBargainLogServiceImpl leBargainLogService;
+	@Autowired
+	LeBargainRuleService leBargainRuleService;
+	public ConcurrentHashMap<Integer,LimitPirce> limitPirceMap = new ConcurrentHashMap<>();
+
+
 
 
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
@@ -311,5 +315,107 @@ public class LeProductServiceImpl implements LeProductService {
 			}
 		}
 		return new ResponseResult(ProductCode.PRODUCT_DELETE_PICTURE_FALSE);
+	}
+
+	//砍价
+	@Override
+	public synchronized  ResponseResultWithData  bargain(int pid) {
+		int uid = 1; //写死
+		LeProduct leProduct = leProductMapper.selectByPrimaryKey(pid);
+		BigDecimal needBargainPrice = null;
+		BigDecimal afterBargainPrice =null;
+		if (leProduct != null){
+
+			BigDecimal originalprice = leProduct.getOriginalprice(); //原价
+			BigDecimal bargainprice = leProduct.getBargainprice();//砍完之后的价格
+
+			needBargainPrice = getBargainPrice(originalprice, bargainprice);
+			afterBargainPrice = bargainprice.subtract(needBargainPrice);
+			//更新商品的砍价记录
+			int updateResult = leProductMapper.updateBargainPrice(leProduct.getId(), afterBargainPrice);
+			log.info("砍价===更加商品记录boolean:{}",updateResult);
+			//插入日志记录
+			LeBargainLog bargainLog = new LeBargainLog();
+			bargainLog.setPid(pid);
+			bargainLog.setPrice(needBargainPrice);
+			bargainLog.setUid(uid);
+			bargainLog.setCreatetime(LocalDateTime.now());
+			bargainLog.setUpdatetime(LocalDateTime.now());
+			int insert = leBargainLogService.insert(bargainLog);
+			log.info("砍价===插入记录boolean:{}",insert);
+			log.info("砍价===本次砍了{},砍前：{}，砍后：{}",needBargainPrice,bargainprice,afterBargainPrice);
+			HashMap<String,Object> data = new HashMap<>();
+			data.put("bargainPrice",needBargainPrice);
+			data.put("afterBargainPrice",afterBargainPrice);
+			return new ResponseResultWithData(CommonCode.SUCCESS,data);
+		}else {
+			log.info("砍价===商品不存在");
+			return new ResponseResultWithData(CommonCode.FAIL,null);
+		}
+
+	}
+
+	//根据原价格与砍价后价格的对比 得出百分比 在获取对应的
+	public  BigDecimal getBargainPrice(BigDecimal originalprice, BigDecimal bargainprice){
+		log.info("砍价==原价:{}，剩余价格：{}",originalprice,bargainprice);
+		BigDecimal bigDecimal = bargainprice.multiply(new BigDecimal(10)).divide(originalprice,0, BigDecimal.ROUND_DOWN);
+		int discount = bigDecimal.intValue();
+		log.info("砍价==折扣:{}",discount);
+		LimitPirce limitPirce = limitPirceMap.get(discount);
+		if (limitPirce == null){
+			loadPriceLimit();
+		}
+		limitPirce = limitPirceMap.get(discount);
+		BigDecimal limitstart = limitPirce.getLimitstart();
+		BigDecimal limitend = limitPirce.getLimitend();
+		BigDecimal bargainPrice = getRoundPriceByLimit(limitstart.multiply(new BigDecimal(100)).intValue()
+													,limitend.multiply(new BigDecimal(100)).intValue());
+		log.info("砍价==bargainPrice:{}",bargainPrice);
+//		BigDecimal afterBargainPrice = bargainprice.subtract(bargainPrice);
+		return bargainPrice;
+	}
+	public BigDecimal getRoundPriceByLimit(int min,int max){
+		Random random = new Random();
+		int s = random.nextInt(max) % (max - min + 1) + min;
+		BigDecimal price = new BigDecimal(s).divide(new BigDecimal(100),2,BigDecimal.ROUND_UP);
+
+		return price;
+	}
+
+	public static void main(String[] args) {
+		BigDecimal a = new BigDecimal("0.05");
+		BigDecimal b = new BigDecimal("1");
+		int min = a.multiply(new BigDecimal(100)).intValue(); //100
+		int max = b.multiply(new BigDecimal(100)).intValue();
+		log.info("砍价价格限制 start:{}，end:{}",min,max);
+		Random random = new Random();
+		int s = random.nextInt(max) % (max - min + 1) + min;
+		log.info("砍价价格s:{}",s);
+		BigDecimal price = new BigDecimal(s).divide(new BigDecimal(100),2,BigDecimal.ROUND_UP);
+		log.info("砍价价格price:{}",price);
+		//根据两个价格 去中间随机一个价格
+//		BigDecimal bargainPrice = getBargainPrice(a,b);
+	}
+
+	//吧数据库中的砍价规则放入map中
+	public void loadPriceLimit(){
+		List<LeBargainRule> all = leBargainRuleService.getAll();
+		for (LeBargainRule item : all) {
+			int discount = item.getDiscount();
+			LimitPirce limitPirce = new LimitPirce(item.getLimitstart(),item.getLimitend());
+			limitPirceMap.put(discount, limitPirce);//这个方法在key不存在的时候加入一个值,如果key存在就不放入
+		}
+		log.info("limitPirceMap加载完毕"+limitPirceMap.toString());
+	}
+
+	@Data
+	@ToString
+	private  class LimitPirce {
+		private BigDecimal limitstart;
+		private BigDecimal limitend;
+		LimitPirce(BigDecimal args1,BigDecimal args2){
+			this.limitstart = args1;
+			this.limitend = args2;
+		}
 	}
 }

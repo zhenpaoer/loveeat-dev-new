@@ -14,6 +14,12 @@ import java.util.List;
 public class LeBargainLogServiceImpl implements LeBargainLogService {
 	@Autowired
 	LeBargainLogMapper leBargainLogMapper;
+
+	@Override
+	public int insert(LeBargainLog log) {
+		return leBargainLogMapper.insertLog(log);
+	}
+
 	@Override
 	public List<LeBargainLog> getListByPidUid(int pid, int uid) {
 		return null;

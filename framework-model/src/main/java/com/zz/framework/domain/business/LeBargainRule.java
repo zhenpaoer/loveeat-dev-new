@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "le_bargain_log")
+@Table(name = "le_bargain_rule")
 public class LeBargainRule {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
