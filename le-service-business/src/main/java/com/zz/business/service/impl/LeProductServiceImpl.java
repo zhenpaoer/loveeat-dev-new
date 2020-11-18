@@ -103,7 +103,7 @@ public class LeProductServiceImpl implements LeProductService {
 	//给首页查找所有商品
 	@Override
 	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId
-														,String productType,String priceType, String sortType) {
+														,String productType,String priceType, String sortType,int uid) {
 		//筛选出来商家
 		List<LeBusinessDetail> businessByAreaConditions = leBusinessDetailService.getBusinessByAreaConditions(cityId, regionId, areaId);
 		List<Integer> bids = businessByAreaConditions.parallelStream().map(LeBusinessDetail::getId).collect(Collectors.toList());
@@ -180,11 +180,12 @@ public class LeProductServiceImpl implements LeProductService {
 		if (pids.size() == 0 ){
 			return new QueryResponseResult<>(CommonCode.SUCCESS,new QueryResult());
 		}
-		int uid = 1;
-		List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
 		List<Integer> hasBarginPidsToday = new ArrayList<>();
-		if (listByPidUidDate.size() >0){
-			hasBarginPidsToday = listByPidUidDate.parallelStream().map(LeBargainLog::getPid).collect(Collectors.toList());
+		if (uid != 0){
+			List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
+			if (listByPidUidDate.size() >0){
+				hasBarginPidsToday = listByPidUidDate.parallelStream().map(LeBargainLog::getPid).collect(Collectors.toList());
+			}
 		}
 		log.info("首页获取已砍价记录pids={}",hasBarginPidsToday);
 		//修改距离显示
