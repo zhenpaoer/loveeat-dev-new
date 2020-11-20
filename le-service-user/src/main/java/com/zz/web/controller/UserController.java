@@ -51,6 +51,11 @@ public class UserController implements UserControllerApi {
 	@Autowired
 	StringRedisTemplate stringRedisTemplate;
 
+/*	其实在用户第一次授权的同时 把用户头像昵称还有获取到的手机号之类的信息直接存放到服务器就好了
+	下次用户进来的时候 直接传过去code  后台通过这个code去判断是否为新用户（即已授权过的用户）
+	如果是的话 直接把该用户信息返回即可
+	如果不是新用户（即已授权过的用户）那么再看看什么时候让用户授权 加个判断 就不用每次都授权了
+	*/
 
 	@Override
 	@GetMapping("getuser")
