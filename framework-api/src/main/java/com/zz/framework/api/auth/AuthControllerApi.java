@@ -17,6 +17,9 @@ public interface AuthControllerApi {
 	@ApiOperation("登录")
 	public LoginResult login(LoginRequest loginRequest);
 
+	@ApiOperation("微信登陆")
+	public LoginResult wxLogin(String code);
+
 	@ApiOperation("退出")
 	public ResponseResult logout(HttpServletRequest request);
 
