@@ -1,10 +1,22 @@
 package com.zz.auth.service;
+import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.netflix.http4.NFHttpClient;
+import com.zz.auth.feign.UserClient;
 import com.zz.framework.common.exception.ExceptionCast;
+import com.zz.framework.common.model.response.CommonCode;
+import com.zz.framework.common.model.response.ResponseResult;
+import com.zz.framework.common.model.response.ResultCode;
+import com.zz.framework.domain.user.LeUserBasic;
 import com.zz.framework.domain.user.ext.AuthToken;
+import com.zz.framework.domain.user.ext.LeUserExt;
 import com.zz.framework.domain.user.response.AuthCode;
+import com.zz.framework.domain.user.response.GetUserExtResult;
+import com.zz.framework.domain.user.response.LoginResult;
+import com.zz.framework.utils.Jcode2SessionUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -25,15 +37,18 @@ import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -43,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by zhangzhen on 2019/7/11
  */
+@Slf4j
 @Service
 public class AuthService {
 	@Autowired
@@ -53,6 +69,13 @@ public class AuthService {
 	StringRedisTemplate stringRedisTemplate;
 	@Value("${auth.tokenValiditySeconds}")
 	int tokenValiditySeconds;
+	@Value("${weChat.appid}")
+	private String appid;
+
+	@Value("${weChat.secret}")
+	private String secret;
+	@Autowired
+	UserClient userClient;
 	private static HttpClientContext context = HttpClientContext.create();
 
 	public AuthToken login(String username, String password, String clientId, String clientSecret) {
@@ -189,5 +212,132 @@ public class AuthService {
 			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
 		}
 		return false;
+	}
+
+
+	public LoginResult wxLogin(String code){
+		JSONObject sessionInfo = null;
+		try {
+			sessionInfo = JSONObject.parseObject(jcode2Session(code));
+		} catch (Exception e) {
+			log.info("微信登陆异常 {}",e.getMessage());
+			e.printStackTrace();
+		}
+		String openid = (String)sessionInfo.get("openid");
+		String sessionKey = (String)sessionInfo.get("session_key");
+		if(StringUtils.isEmpty(openid)){
+			ExceptionCast.cast(AuthCode.AUTH_ACCOUNT_NOTEXISTS);
+		}
+		log.info("openid={}",openid);
+		log.info("session_key={}",sessionKey);
+		GetUserExtResult userextByOpenid = userClient.getUserextByOpenid(openid);
+
+		LeUserExt user = userextByOpenid.getLeUserExt();
+//		responseResult = userClient.updateUserLogin(openid);
+		if(user == null){
+			//根据openid获取用户信息
+//			String userInfo = getUserInfo(openid);
+//			JSONObject jsonUserInfo = JSONObject.parseObject(userInfo);
+			String phone = "";
+			String nickname= "";
+			String avator= "";
+			String userpic= "";
+			String address= "";
+			String lon = "";
+			String lat ="";
+			String password = new BCryptPasswordEncoder().encode(openid);
+			// 添加到数据库
+			ResponseResult responseResult = userClient.registerUser(openid,sessionKey, phone, nickname, avator, userpic, address, lon, lat);
+			if(responseResult.getCode() != 10000){
+				ExceptionCast.cast(AuthCode.AUTH_WXLOGIN_FAIL);
+			}
+		}
+
+		//申请令牌
+		AuthToken authToken = applyToken(openid, openid, "LeWebApp", "LeWebApp");
+		if (authToken == null) {
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_APPLYTOKEN_FAIL);
+		}
+		//保存到redis
+		String content = JSON.toJSONString(authToken);
+		boolean saveTokenResult = saveToken(authToken.getAccess_token(), content, tokenValiditySeconds);
+		if (!saveTokenResult){
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_TOKEN_SAVEFAIL);
+		}
+		return new LoginResult(CommonCode.SUCCESS,authToken.getAccess_token());
+	}
+	/**
+	 * 微信登录凭证校验
+	 * @param code
+	 * @return
+	 * @throws Exception
+	 */
+	private String jcode2Session(String code)throws Exception{
+		String sessionInfo = Jcode2SessionUtil.jscode2session(appid,secret,code,"authorization_code");//登录grantType固定
+		log.info(sessionInfo);
+		return sessionInfo;
+	}
+
+	/**
+	 * 获取用户信息
+	 * @param openid
+	 * @return
+	 */
+	private String getUserInfo(String openid){
+		String accessToken = getAccessToken();
+		String userInfo = Jcode2SessionUtil.getUserInfo(openid, accessToken);
+		if (userInfo.contains("errcode")){
+			String token = requestAndSaveAccessToken();
+			return Jcode2SessionUtil.getUserInfo(openid, token);
+		}else {
+			return userInfo;
+		}
+	}
+	/**
+	 * 请求微信accesstoken
+	 * @return
+	 */
+	private String getAccessToken(){
+		try {
+			String key = "wxAccessToken";
+			String value = stringRedisTemplate.opsForValue().get(key);
+			if(!StringUtils.isEmpty(value)){
+				log.info("wxAccessToken={}",value);
+				return value;
+			}else {
+				value = requestAndSaveAccessToken();
+				log.info("wxAccessToken={}",value);
+				return value;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
+		}
+		return null;
+	}
+
+	/**
+	 * 请求accesstoken和存储到redis
+	 * @return
+	 */
+	private String requestAndSaveAccessToken(){
+		String accessToken = Jcode2SessionUtil.getAccessToken(appid, secret);
+		JSONObject jsonObject = JSONObject.parseObject(accessToken);
+		String wxAccessToken = jsonObject.getString("access_token");
+		Integer wxAccessTokenExpiresIn = jsonObject.getInteger("expires_in");
+		log.info("wxAccessToken:"+wxAccessToken);
+		try {
+			//令牌名称 也是redis的key
+			String key = "wxAccessToken";
+			//保存令牌到redis
+			stringRedisTemplate.boundValueOps(key).set(wxAccessToken,wxAccessTokenExpiresIn, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
+		}
+		return wxAccessToken;
 	}
 }

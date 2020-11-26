@@ -1,5 +1,6 @@
 package com.zz.web.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zz.auth.service.AuthService;
 import com.zz.framework.api.auth.AuthControllerApi;
 import com.zz.framework.common.exception.ExceptionCast;
@@ -11,6 +12,7 @@ import com.zz.framework.domain.user.response.AuthCode;
 import com.zz.framework.domain.user.response.JwtResult;
 import com.zz.framework.domain.user.response.LoginResult;
 import com.zz.framework.utils.CookieUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -75,6 +77,15 @@ public class AuthController implements AuthControllerApi {
 	}
 
 	@Override
+	@RequestMapping("/wxlogin")
+	public LoginResult wxLogin(String code) {
+		if (StringUtils.isEmpty(code)){
+			ExceptionCast.cast(AuthCode.AUTH_WXLOGIN_FAIL);
+		}
+		return authService.wxLogin(code);
+	}
+
+	@Override
 	@PostMapping("/userlogout")
 	public ResponseResult logout(HttpServletRequest request) {
 		String token = request.getHeader("token");
@@ -110,5 +121,7 @@ public class AuthController implements AuthControllerApi {
 		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
 		CookieUtil.addCookie(response, cookieDomain, "/", "uid", token, 0, false);
 	}
+
+
 
 }

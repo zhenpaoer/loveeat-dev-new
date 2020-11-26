@@ -8,6 +8,7 @@ import lombok.ToString;
 @ToString
 public enum UserCode implements ResultCode {
 	USER_USERNAME_NONE(false,23001,"请输入账号！"),
+	USER_OPENID_NONE(false,23001,"请输入账号！"),
 	USER_PASSWORD_NONE(false,23002,"请输入密码！"),
 	USER_PHONE_NONE(false,23003,"请输入手机号！"),
 	USER_NICKNAME_NONE(false,23004,"请输入昵称！"),
@@ -16,6 +17,7 @@ public enum UserCode implements ResultCode {
 	USER_ACCOUNT_EXISTS(false,23007,"账号已存在！"),
 	USER_CREDENTIAL_ERROR(false,23008,"账号或密码错误！"),
 	USER_USERNAME_CHECK_ERROR(false,23009,"用户名校验错误！"),
+	USER_OPENID_CHECK_ERROR(false,23009,"OPENID校验错误！"),
 	USER_RIG_CHECK_ERROR(false,23010,"用户注册失败！"),
 	USER_LOGIN_ERROR(false,23100,"登陆过程出现异常请尝试重新操作！");
 
