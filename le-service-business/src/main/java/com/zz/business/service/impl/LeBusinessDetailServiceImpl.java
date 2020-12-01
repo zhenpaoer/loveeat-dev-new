@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -145,5 +146,27 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 			}
 		}
 		return new ResponseResult(BusinessCode.BUSINESSDETAIL_DELETE_PICTURE_FALSE);
+	}
+
+	//根据区域筛选商家
+	@Override
+	public List<LeBusinessDetail> getBusinessByAreaConditions(int cityId, int regionId, int areaId){
+		List<LeBusinessDetail> getBusinessbyId = new ArrayList<>();
+/*		cityid一定不为空，
+		如果reigionid为空 areaid为空 则查询城市全部的
+		如果regionId为空  areaid不为空 则查询城市某个商圈的
+		如果regionid不为空 areaid为空 则查询行政区的
+		如果regionid不为空 areid不为空 则查询商圈的
+		*/
+		if (areaId != 0){
+			getBusinessbyId = leBusinessDetailMapper.getByAreaId(areaId);
+		}else {
+			if (regionId == 0){
+				getBusinessbyId = leBusinessDetailMapper.getByCityId(cityId);
+			}else {
+				getBusinessbyId = leBusinessDetailMapper.getByRegionId(regionId);
+			}
+		}
+		return getBusinessbyId;
 	}
 }

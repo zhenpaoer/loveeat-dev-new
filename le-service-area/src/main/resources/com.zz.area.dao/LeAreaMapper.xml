@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zz.area.dao.LeAreaMapper">
+    <resultMap id="BaseResultMap" type="com.zz.framework.domain.area.LeArea">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="parentId" jdbcType="INTEGER" property="parentId" />
+        <result column="area" jdbcType="VARCHAR" property="area" />
+        <result column="searchcount" jdbcType="INTEGER" property="searchcount" />
+        <result column="createtime" jdbcType="VARCHAR" property="createtime" />
+        <result column="updatetime" jdbcType="VARCHAR" property="updatetime" />
+    </resultMap>
+    <!-- 树形地区 -->
+    <resultMap id="areaResultMap" type="com.zz.framework.domain.area.ext.LeAreaNode">
+        <id column="aid" jdbcType="INTEGER" property="id"/>
+<!--        <result column="parentId" jdbcType="VARCHAR" property="parentId"/>-->
+        <result column="area1" jdbcType="VARCHAR" property="area"/>
+        <collection property="children" ofType="com.zz.framework.domain.area.ext.LeAreaNode">
+            <id column="bid" jdbcType="INTEGER" property="id"/>
+            <result column="area2" jdbcType="VARCHAR" property="area"/>
+<!--            <result column="parentId" jdbcType="VARCHAR" property="parentId"/>-->
+            <collection property="children" ofType="com.zz.framework.domain.area.ext.LeAreaNode">
+                <id column="cid" jdbcType="INTEGER" property="id"/>
+<!--                <result column="parentId" jdbcType="VARCHAR" property="parentId"/>-->
+                <result column="area3" jdbcType="VARCHAR" property="area"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+  <sql id="area">
+      id,
+      parentId,
+      area,
+      createtime,
+      updatetime
+  </sql>
+
+<!--    <select id="getAreaById" parameterType="java.lang.Integer" resultMap="areaResultMap">-->
+<!--    SELECT-->
+<!--        a.id aid,-->
+<!--        a.area area1,-->
+<!--        b.id bid,-->
+<!--        b.area area2,-->
+<!--	    c.id cid,-->
+<!--		c.area area3-->
+<!--    FROM-->
+<!--        le_area a-->
+<!--    LEFT JOIN le_area b ON a.id = b.parentid-->
+<!--	LEFT JOIN le_area c ON b.id = c.parentid-->
+<!--    <where>-->
+<!--        a.parentid = '0'-->
+<!--        <if test="id != 0 ">-->
+<!--            and a.id = #{id}-->
+<!--        </if>-->
+<!--    </where>-->
+<!--    ORDER BY a.id,b.id,c.id;-->
+<!--  </select>-->
+
+<!--    <insert id="insertArea" parameterType="com.zz.framework.domain.area.LeArea" >-->
+<!--        INSERT INTO le_area (-->
+<!--        parentId,-->
+<!--        area,-->
+<!--        searchcount,-->
+<!--        createtime,-->
+<!--        updatetime)-->
+<!--        VALUES-->
+<!--        (-->
+<!--        #{parentId},-->
+<!--        #{area},-->
+<!--        #{searchcount},-->
+<!--        #{createtime},-->
+<!--        #{updatetime}-->
+<!--        )-->
+<!--    </insert>-->
+
+
+</mapper>

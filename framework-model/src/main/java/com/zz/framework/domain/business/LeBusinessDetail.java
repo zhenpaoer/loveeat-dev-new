@@ -68,4 +68,14 @@ public class LeBusinessDetail {
      * 商家图片url
      */
     private String url;
+    //经度
+    private String lon;
+    //纬度
+    private String lat;
+    //城市id
+    private int cityId;
+    //行政区id
+    private int regionId;
+    //商圈id
+    private int areaId;
 }

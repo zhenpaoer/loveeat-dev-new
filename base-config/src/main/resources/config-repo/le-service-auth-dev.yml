@@ -11,7 +11,7 @@ spring:
       client:
         url: http://localhost:9002
   redis:
-    host: 149.248.8.106
+    host: 127.0.0.1
     port: 6379
     password: 123456
     timeout: 5000 #连接超时 毫秒
@@ -71,4 +71,9 @@ feign:
   hystrix:
     # 开启Feign的Hystrix熔断器支持
     enabled: false
-
+#微信相关参数
+weChat:
+  #小程序appid
+  appid: wxf6cb9736c23678a8
+  #小程序密钥
+  secret: 153e97f7a055ae79b6ab38fcc55f05c1

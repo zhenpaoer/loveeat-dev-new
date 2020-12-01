@@ -3,7 +3,7 @@ package com.zz.framework.domain.user;
 import javax.persistence.*;
 import java.util.Date;
 
-@Table(name = "le_role")
+
 public class LeRole {
     /**
      * 角色id
@@ -15,7 +15,6 @@ public class LeRole {
     /**
      * 角色名称
      */
-    @Column(name = "role_name")
     private String roleName;
 
     /**
@@ -26,13 +25,12 @@ public class LeRole {
     /**
      * 创建日期
      */
-    @Column(name = "createTime")
     private Date createtime;
 
     /**
      * 更新日期
      */
-    @Column(name = "updateTime")
+
     private Date updatetime;
 
     /**

@@ -7,6 +7,8 @@ import com.zz.framework.domain.user.response.LoginResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created by zhangzhen on 2019/7/11
  */
@@ -15,11 +17,14 @@ public interface AuthControllerApi {
 	@ApiOperation("登录")
 	public LoginResult login(LoginRequest loginRequest);
 
+	@ApiOperation("微信登陆")
+	public LoginResult wxLogin(String code);
+
 	@ApiOperation("退出")
-	public ResponseResult logout(String token);
+	public ResponseResult logout(HttpServletRequest request);
 
 	@ApiOperation("查询userjwt令牌")
-	public JwtResult userjwt(String token);
+	public JwtResult userjwt(HttpServletRequest request);
 
 
 }

@@ -15,5 +15,10 @@
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="updatetime" jdbcType="TIMESTAMP" property="updatetime" />
     <result column="userpic" jdbcType="VARCHAR" property="userpic" />
+    <result column="lon" jdbcType="VARCHAR" property="lon" />
+    <result column="lat" jdbcType="VARCHAR" property="lat" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="openid" jdbcType="VARCHAR" property="openid" />
+    <result column="sessionkey" jdbcType="VARCHAR" property="sessionkey" />
   </resultMap>
 </mapper>

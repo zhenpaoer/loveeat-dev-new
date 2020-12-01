@@ -2,6 +2,7 @@ package com.zz.auth.service;
 
 import com.zz.auth.feign.UserClient;
 import com.zz.framework.domain.user.LePermission;
+import com.zz.framework.domain.user.LeRole;
 import com.zz.framework.domain.user.ext.LeUserExt;
 import com.zz.framework.domain.user.response.GetUserExtResult;
 import org.apache.commons.lang3.StringUtils;
@@ -73,16 +74,26 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         //取出正确密码（hash值）
         //从数据库查询用户正确的密码，Spring Security会去比对输入密码的正确性
         String password = userext.getPassword();
-        //从数据库获取权限
+      /*  //从数据库获取权限
         List<String> user_permission = new ArrayList<>();
-        permissions.forEach(item-> user_permission.add(item.getId().toString()));
+
+        permissions.forEach(item-> user_permission.add(item.getUri()));
         String user_permission_string  = StringUtils.join(user_permission.toArray(), ",");
         UserJwt userDetails = new UserJwt(username,
                 password,
-                AuthorityUtils.commaSeparatedStringToAuthorityList(user_permission_string));
+//                AuthorityUtils.commaSeparatedStringToAuthorityList(user_permission_string));*/
+        List<String> userRoles = new ArrayList<>();
+        List<LeRole> roles = userext.getRoles();
+        if (roles== null){
+            roles = new ArrayList<>();
+        }
+        roles.stream().forEach(role -> userRoles.add(role.getRoleName()));
+        String userRoleString  = StringUtils.join(userRoles.toArray(), ",");
+        UserJwt userDetails = new UserJwt(username, password, AuthorityUtils.createAuthorityList(userRoleString));
+
         userDetails.setId(userext.getId().toString());
         userDetails.setName(userext.getUsername());//用户名称
-        userDetails.setUserpic(userext.getUserpic());//用户头像
+        userDetails.setUserpic(userext.getUserpic());//用户头像.
        /* UserDetails userDetails = new org.springframework.security.core.userdetails.User(username,
                 password,
                 AuthorityUtils.commaSeparatedStringToAuthorityList(""));*/

@@ -2,7 +2,7 @@ package com.zz.framework.domain.user;
 
 import javax.persistence.*;
 
-@Table(name = "le_role_permission")
+
 public class LeRolePermission {
     /**
      * 主键
@@ -14,13 +14,13 @@ public class LeRolePermission {
     /**
      * 角色id
      */
-    @Column(name = "role_id")
+
     private Integer roleId;
 
     /**
      * 权限id
      */
-    @Column(name = "permission_id")
+
     private Integer permissionId;
 
     /**

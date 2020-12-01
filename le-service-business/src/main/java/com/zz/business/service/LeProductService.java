@@ -2,6 +2,7 @@ package com.zz.business.service;
 
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;
+import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.business.LeProduct;
 import com.zz.framework.domain.business.LeProductMenudetail;
 import com.zz.framework.domain.business.LeProductPicurl;
@@ -20,7 +21,7 @@ public interface LeProductService {
 	public  QueryResponseResult<LeProduct> getAll();
 
 	//获取所有商品信息
-	public QueryResponseResult<LeProduct> getAllForHome();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId,String productType,String priceType, String sortType,int uid);
 
 	//创建商品信息
 	public ResponseResult createLeProduct(LeProduct leProduct);
@@ -36,4 +37,7 @@ public interface LeProductService {
 
 	//删除商品图片url
 	ResponseResult delBusinessPic(String pid, String url);
+
+	//砍价
+	ResponseResultWithData bargain(int pid);
 }

@@ -19,6 +19,7 @@ import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.picture.response.PictureCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,8 +45,8 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 
 	//查询商家分店信息
 	@Override
-	@GetMapping("/getBusDeById/{id}")
-	public GetBusinessDetailResult getBusDeById(int id) {
+	@GetMapping("/getBusDeById")
+	public GetBusinessDetailResult getBusDeById(@RequestParam int id) {
 		if (id < 0 ){
 			return new GetBusinessDetailResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
 		}
@@ -58,6 +59,7 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	//查询商家信息
 	@Override
 	@GetMapping("/getBusDeList")
+//	@PreAuthorize(value = "hasRole('ROLE_ADMIN')" )
 	public QueryResponseResult<LeBusinessDetail> getBusDeList() {
 		return leBusinessDetailService.getAll();
 	}
@@ -71,6 +73,7 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	//创建商家信息
 	@Override
 	@PostMapping("/createBusinessDetail")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult createBusinessDetail(LeBusinessDetail leBusinessDetail) {
 		return  leBusinessDetailService.createLeBusinessDetail(leBusinessDetail);
 	}
@@ -78,6 +81,7 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	//修改商家分店信息
 	@Override
 	@PostMapping("/updateBusinessDetail")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult updateBusinessDetail(LeBusinessDetail leBusinessDetail) {
 		return leBusinessDetailService.updateBusinessDetail(leBusinessDetail);
 	}
@@ -85,6 +89,7 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	//对商家信息进行审核通过
 	@Override
 	@GetMapping("/passBusinessDetail/{id}")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN')")
 	public ResponseResult passBusinessDetail(@PathVariable("id") int leBusinessDetailId) {
 		return leBusinessDetailService.passBusinessDetail(leBusinessDetailId);
 	}
@@ -92,18 +97,22 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	//对商家信息进行审核不通过
 	@Override
 	@PostMapping("/notPassBusinessDetail")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN')")
 	public ResponseResult notPassBusinessDetail(@PathVariable("id") int id ,@PathVariable("reason") String reason ) {
 		return leBusinessDetailService.notPassBusinessDetail(id,reason);
 	}
 	//对商家下架
 	@Override
 	@GetMapping("/downBusinessDetail/{id}")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN')")
 	public ResponseResult downBusinessDetail(int id) {
 		return leBusinessDetailService.downBusinessDetail(id);
 	}
 
+	//商家图片上传
 	@Override
 	@PostMapping(value = "savebusinesspic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveBusinessPic(@RequestPart MultipartFile file, @RequestParam String bid) { //分店id
 		if (Integer.parseInt(bid) < 0){
 			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
@@ -128,8 +137,10 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 		return new ResponseResult(BusinessCode.BUSINESS_NOTEXIT);
 	}
 
+
 	@Override
-	@GetMapping("delbusinesspic")
+	@PostMapping(value = "delbusinesspic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult delBusinessPic(String bid, String url) {
 		if (StringUtils.isNotEmpty(bid) && StringUtils.isNotEmpty(url)){
 			return leBusinessDetailService.delBusinessPic(bid,url);

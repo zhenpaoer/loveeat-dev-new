@@ -1,4 +1,4 @@
-package com.zz.framework.api.business;
+package com.zz.framework.api.picturl;
 
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;

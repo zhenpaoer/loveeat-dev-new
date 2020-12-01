@@ -5,6 +5,8 @@ import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.domain.business.LeBusinessDetail;
 import io.swagger.annotations.ApiOperation;
 
+import java.util.List;
+
 /**
  * Created by zhangzhen on 2020/5/17
  */
@@ -32,4 +34,7 @@ public interface LeBusinessDetailService {
 
 	//删除商家图片
 	ResponseResult delBusinessPic(String bid, String url);
+
+	//根据区域筛选商家
+	List<LeBusinessDetail> getBusinessByAreaConditions(int cityId,int regionId,int areaId);
 }

@@ -53,3 +53,6 @@ hystrix:
 ribbon:
   ReadTimeout: 4000  #请求处理的超时时间
   ConnectTimeout: 2000  #请求连接的超时时间
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志

@@ -11,7 +11,7 @@ spring:
       client:
         url: http://localhost:9002
   redis:
-    host: 149.248.8.106
+    host: 127.0.0.1
     port: 6379
     timeout: 5000 #连接超时 毫秒
     password: 123456
@@ -40,6 +40,7 @@ zuul:
     le-service-business: /api/business/**
     le-service-user: /api/user/**
     le-service-auth: /api/auth/**
+    le-service-area: /api/area/**
 
   host:
     #以下两个配置也是解决zuul超时的

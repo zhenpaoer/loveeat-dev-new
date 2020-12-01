@@ -14,10 +14,12 @@ import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.picture.response.PictureCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @ClassName LeBusinessDetailController
@@ -35,7 +38,7 @@ import java.util.List;
  * @Date 2020/5/17
  * @Version V1.0
  **/
-
+@Slf4j
 @RestController
 @RequestMapping("product")
 public class LeProductController implements ProductControllerApi {
@@ -45,30 +48,57 @@ public class LeProductController implements ProductControllerApi {
 	PictureService pictureService;
 	@Autowired
 	public ProviderService providerService;
-
+	private Pattern lonPattern = Pattern.compile("^[\\-\\+]?(0?\\d{1,2}\\.\\d{1,5}|1[0-7]?\\d{1}\\.\\d{1,5}|180\\.0{1,5})$");
+	private Pattern latPattern = Pattern.compile("^[\\-\\+]?([0-8]?\\d{1}\\.\\d{1,5}|90\\.0{1,5})$");
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
-	@GetMapping("/{id}")
-	public GetLeProductPicMenuExtResult getProductById(@PathVariable("id") int id) {
+	@GetMapping("/getbyid")
+	public GetLeProductPicMenuExtResult getProductById(@RequestParam("id") int id) {
 		return leProductService.getLeProduct(id);
 	}
 
 	//查询所有商品信息
 	@Override
 	@GetMapping("/all")
+	@PreAuthorize(value = "hasAnyRole('ROLE_ADMIN')")
 	public QueryResponseResult<LeProduct> getAllProduct() {
 		return leProductService.getAll();
 	}
 
 	//查询首页商品信息
+//	productType: String(0),       //商品类型
+//	priceType: String(0),         //价格类型
+//	sortType: String(0),          //排序规则
 	@Override
 	@GetMapping("/allforhome")
-	public QueryResponseResult<LeProduct> getAllForHome() {
-		return leProductService.getAllForHome();
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int uid,
+														int cityId,int regionId,int areaId,String productType,String priceType, String sortType) {
+		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={},productType={},priceType={},sortType={},uid={}",
+				pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType,sortType,uid);
+		if (pageSize <= 0 ){
+			pageSize = 1;
+		}
+		if (pageNo <= 0 ){
+			pageSize = 1;
+		}
+		if (StringUtils.isEmpty(lon)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+		}
+		if (StringUtils.isEmpty(lat)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+		}
+		if ((cityId + regionId + areaId) == 0 ){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
+		}
+		if ("".equals(productType) || "".equals(priceType) || "".equals(sortType)){
+			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
+		}
+		return leProductService.getAllForHome(pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType, sortType,uid);
 	}
 
 	@Override
 	@PostMapping("saveproduct")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProduct(LeProduct leProduct, int bid) {
 		if (bid < 0 ){
 			return new ResponseResult(ProductCode.PRODUCT_CHECK_BID_FALSE);
@@ -96,6 +126,7 @@ public class LeProductController implements ProductControllerApi {
 
 	@Override
 	@PostMapping("saveproductmenu")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProductMenu(List<LeProductMenudetail> leProductMenudetails, int pid) {
 		if (pid < 0){
 			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
@@ -105,6 +136,7 @@ public class LeProductController implements ProductControllerApi {
 //, consumes = MediaType.MULTIPART_FORM_DATA_VALUE
 	@Override
 	@PostMapping(value = "saveproductpic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProductPic(@RequestPart MultipartFile file,@RequestParam String pid) {
 //		String pid = request.getParameter("pid");
 		if (Integer.parseInt(pid) < 0){
@@ -126,11 +158,22 @@ public class LeProductController implements ProductControllerApi {
 
 	@Override
 	@GetMapping("delproductpic")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult delProductPic(String pid, String url) {
 		if (StringUtils.isNotEmpty(pid) && StringUtils.isNotEmpty(url)) {
 			return leProductService.delBusinessPic(pid, url);
 		}
 		return new ResponseResult(BusinessCode.BUSINESS_CHECK_ID_FALSE);
+	}
+
+	//对商品砍价
+	@Override
+	@GetMapping("/bargain")
+	public ResponseResultWithData bargainByPid(int pid) {
+		if (pid <= 0){
+			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+		}
+		return leProductService.bargain(pid) ;
 	}
 
 	//测试服务提供者
@@ -140,6 +183,26 @@ public class LeProductController implements ProductControllerApi {
 		String hi = providerService.hi(msg);
 		if (StringUtils.isNotEmpty(hi)) return hi;
 		return "111";
+	}
+
+	/**
+	 * 校验经度 对则返回true 错返回false
+	 *
+	 * @param lon
+	 * @return
+	 */
+	private boolean checkLon(String lon) {
+		return (lonPattern.matcher(lon).matches());
+	}
+
+	/**
+	 * 校验纬度 对则返回true 错返回false
+	 *
+	 * @param lat
+	 * @return
+	 */
+	private boolean checkLat(String lat) {
+		return (latPattern.matcher(lat).matches());
 	}
 
 }

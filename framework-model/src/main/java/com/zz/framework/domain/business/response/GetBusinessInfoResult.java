@@ -5,6 +5,9 @@ package com.zz.framework.domain.business.response;/**
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResultCode;
 import com.zz.framework.domain.business.LeBusiness;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @ClassName GetBusinessInfoResult
@@ -13,9 +16,10 @@ import com.zz.framework.domain.business.LeBusiness;
  * @Date 2020/5/16 
  * @Version V1.0
  **/
+@Data
 public class GetBusinessInfoResult extends ResponseResult {
 
-	private LeBusiness leBusiness;
+	public LeBusiness leBusiness;
 	public GetBusinessInfoResult(ResultCode resultCode, LeBusiness leBusiness) {
 		super(resultCode);
 		this.leBusiness = leBusiness;
