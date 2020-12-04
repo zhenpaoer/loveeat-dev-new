@@ -192,6 +192,8 @@ public class AuthService {
 			String key = "token:"+tokenFormCookie;
 			String value = stringRedisTemplate.opsForValue().get(key);
 			if(value !=null){
+				//更新redis过期时间
+				stringRedisTemplate.expire(key,tokenValiditySeconds,TimeUnit.SECONDS);
 				AuthToken authToken =  JSON.parseObject(value,AuthToken.class);
 				return authToken;
 			}

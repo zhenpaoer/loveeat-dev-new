@@ -320,13 +320,17 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//砍价
 	@Override
-	public synchronized  ResponseResultWithData  bargain(int pid) {
-		int uid = 1; //写死
+	public synchronized  ResponseResultWithData  bargain(int pid,int uid) {
 		LeProduct leProduct = leProductMapper.selectByPrimaryKey(pid);
 		BigDecimal needBargainPrice = null;
 		BigDecimal afterBargainPrice =null;
 		if (leProduct != null){
-
+			ArrayList<Integer> pids = new ArrayList<>();
+			pids.add(pid);
+			List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
+			if (listByPidUidDate.size()>0){
+				return new ResponseResultWithData(ProductCode.PRODUCT_BARGAIN_AGAIN_ERROR,null);
+			}
 			BigDecimal originalprice = leProduct.getOriginalprice(); //原价
 			BigDecimal bargainprice = leProduct.getBargainprice();//砍完之后的价格
 

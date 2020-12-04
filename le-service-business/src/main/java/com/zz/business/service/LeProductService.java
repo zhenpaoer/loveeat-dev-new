@@ -39,5 +39,5 @@ public interface LeProductService {
 	ResponseResult delBusinessPic(String pid, String url);
 
 	//砍价
-	ResponseResultWithData bargain(int pid);
+	ResponseResultWithData bargain(int pid,int uid);
 }

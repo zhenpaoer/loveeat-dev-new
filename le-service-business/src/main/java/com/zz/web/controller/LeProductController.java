@@ -1,5 +1,7 @@
 package com.zz.web.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zz.business.feign.PictureService;
 import com.zz.business.feign.ProviderService;
 import com.zz.business.service.LeProductService;
@@ -14,22 +16,35 @@ import com.zz.framework.domain.business.response.BusinessCode;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.picture.response.PictureCode;
+import com.zz.framework.domain.user.ext.AuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisConnectionUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.jwt.Jwt;
+import org.springframework.security.jwt.JwtHelper;
+import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName LeBusinessDetailController
@@ -50,6 +65,11 @@ public class LeProductController implements ProductControllerApi {
 	public ProviderService providerService;
 	private Pattern lonPattern = Pattern.compile("^[\\-\\+]?(0?\\d{1,2}\\.\\d{1,5}|1[0-7]?\\d{1}\\.\\d{1,5}|180\\.0{1,5})$");
 	private Pattern latPattern = Pattern.compile("^[\\-\\+]?([0-8]?\\d{1}\\.\\d{1,5}|90\\.0{1,5})$");
+	@Autowired
+	StringRedisTemplate stringRedisTemplate;
+	//公钥
+	private static final String PUBLIC_KEY = "publickey.txt";
+
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
 	@GetMapping("/getbyid")
@@ -71,10 +91,16 @@ public class LeProductController implements ProductControllerApi {
 //	sortType: String(0),          //排序规则
 	@Override
 	@GetMapping("/allforhome")
-	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int uid,
-														int cityId,int regionId,int areaId,String productType,String priceType, String sortType) {
-		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={},productType={},priceType={},sortType={},uid={}",
-				pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType,sortType,uid);
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,
+														int cityId,int regionId,int areaId,String productType,String priceType, String sortType,HttpServletRequest request) {
+		log.info("查询首页商品接口参数 pageSize={},pageNo={},lon={},lat={},distance={},cityId={},regionId={},areaId={},productType={},priceType={},sortType={}",
+				pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType,sortType);
+		String uidByToken = getUidByToken(request);
+		int uid = 0;
+		if (StringUtils.isNotEmpty(uidByToken)){
+			uid = Integer.parseInt(uidByToken);
+		}
+		log.info("查询首页商品接口参数uid={}",uid);
 		if (pageSize <= 0 ){
 			pageSize = 1;
 		}
@@ -169,11 +195,16 @@ public class LeProductController implements ProductControllerApi {
 	//对商品砍价
 	@Override
 	@GetMapping("/bargain")
-	public ResponseResultWithData bargainByPid(int pid) {
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	public ResponseResultWithData bargainByPid(int pid,HttpServletRequest request) {
+		String uid = getUidByToken(request);
 		if (pid <= 0){
 			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
-		return leProductService.bargain(pid) ;
+		if (StringUtils.isEmpty(uid) || Integer.parseInt(uid) <= 0){
+			new ResponseResult(ProductCode.PRODUCT_CHECK_ID_FALSE);
+		}
+		return leProductService.bargain(pid,Integer.parseInt(uid)) ;
 	}
 
 	//测试服务提供者
@@ -205,4 +236,41 @@ public class LeProductController implements ProductControllerApi {
 		return (latPattern.matcher(lat).matches());
 	}
 
+	private String getUidByToken(HttpServletRequest request){
+		AuthToken authToken = new AuthToken();
+		String token = request.getHeader("token");
+		//根据令牌从redis查询jwt
+		try {
+			if (StringUtils.isEmpty(token)){
+				return "";
+			}
+			String key = "token:"+token;
+			String value = stringRedisTemplate.opsForValue().get(key);
+			if(value !=null){
+				authToken =  JSON.parseObject(value, AuthToken.class);
+			}else {
+				return "";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			RedisConnectionUtils.unbindConnection(Objects.requireNonNull(stringRedisTemplate.getConnectionFactory()));
+		}
+		String jwt_token = authToken.getJwt_token();
+		Jwt jwt = JwtHelper.decodeAndVerify(jwt_token, new RsaVerifier(Objects.requireNonNull(getPubKey())));
+		String claims = jwt.getClaims();
+		JSONObject jsonObject = JSONObject.parseObject(claims);
+		return jsonObject.getString("id");
+	}
+
+	/*** 获取非对称加密公钥 Key * @return 公钥 Key */
+	private String getPubKey() { Resource resource = new ClassPathResource(PUBLIC_KEY);
+		try {
+			InputStreamReader inputStreamReader = new InputStreamReader(resource.getInputStream());
+			BufferedReader br = new BufferedReader(inputStreamReader);
+			return br.lines().collect(Collectors.joining("\n"));
+		} catch (IOException ioe) {
+			return null;
+		}
+	}
 }

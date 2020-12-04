@@ -64,8 +64,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 						"/business/getBusById",
 						"/businessdetail/getBusDeById","/businessdetail/getBusDeList",
 						"/product/getbyid","/product/allforhome",
-						"/product/hi",
-						"/product/bargain"
+						"/product/hi"
+//						"/product/bargain"
 				).permitAll()
 				.anyRequest().authenticated();
 	}
