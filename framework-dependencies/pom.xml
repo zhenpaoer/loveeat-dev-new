@@ -34,6 +34,8 @@
         <module>../le-service-picture</module>
         <module>../le-service-user</module>
         <module>../le-service-auth</module>
+        <module>../le-service-area</module>
+        <module>../le-service-order</module>
 
     </modules>
 

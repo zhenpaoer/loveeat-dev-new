@@ -17,6 +17,8 @@ import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.picture.response.PictureCode;
 import com.zz.framework.domain.user.ext.AuthToken;
+import com.zz.framework.domain.user.response.AuthCode;
+import com.zz.framework.utils.LeOauth2Util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,7 +199,13 @@ public class LeProductController implements ProductControllerApi {
 	@GetMapping("/bargain")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	public ResponseResultWithData bargainByPid(int pid,HttpServletRequest request) {
-		String uid = getUidByToken(request);
+		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
+		if (userJwt == null){
+			new ResponseResult(AuthCode.AUTH_LOGIN_ERROR);
+		}
+		assert userJwt != null;
+		String uid = userJwt.getId();
+//		String uid = getUidByToken(request);
 		if (pid <= 0){
 			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
