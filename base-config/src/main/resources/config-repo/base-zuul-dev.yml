@@ -41,6 +41,7 @@ zuul:
     le-service-user: /api/user/**
     le-service-auth: /api/auth/**
     le-service-area: /api/area/**
+    le-service-order: /api/order/**
 
   host:
     #以下两个配置也是解决zuul超时的
