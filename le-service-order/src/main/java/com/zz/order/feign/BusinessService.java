@@ -1,16 +1,20 @@
 package com.zz.order.feign;
 
+import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.business.response.GetBusinessDetailResult;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 import com.zz.order.feign.fallback.BusinessServiceFallBack;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by zhangzhen on 2020/3/19
@@ -26,4 +30,7 @@ public interface BusinessService {
 	@GetMapping("/getbyid")
 	public GetLeProductPicMenuExtResult getProductById(@RequestParam("id") int id);
 
+	@PostMapping("/updateproductissale")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale, HttpServletRequest request);
 }

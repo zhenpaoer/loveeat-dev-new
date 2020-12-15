@@ -37,6 +37,7 @@ public enum ProductCode implements ResultCode {
 	PRODUCT_CHECK_LOCATION_ERROR(false,1018,"获取用户位置失败，请重试！"),
 	PRODUCT_CHECK_AREA_ERROR(false,1018,"查询位置失败，请重试！"),
 	PRODUCT_BARGAIN_AGAIN_ERROR(false,1018,"已砍价！"),
+	PRODUCT_ISSALE_ERROR(false,1018,"商品状态校验失败"),
 	PRODUCT_OTHER_ERROR(false,1099,"其他异常，请重试！");
 
 	//操作代码

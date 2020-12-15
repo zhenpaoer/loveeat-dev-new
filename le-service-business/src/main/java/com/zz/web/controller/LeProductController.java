@@ -215,6 +215,19 @@ public class LeProductController implements ProductControllerApi {
 		return leProductService.bargain(pid,Integer.parseInt(uid)) ;
 	}
 
+	@Override
+	@PostMapping("/updateproductissale")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale, HttpServletRequest request) {
+		if (pid <= 0){
+			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+		}
+		if (issale <= 0){
+			new ResponseResult(ProductCode.PRODUCT_ISSALE_ERROR);
+		}
+		return leProductService.updateProductIsSaleByPid(pid,issale);
+	}
+
 	//测试服务提供者
 	@GetMapping("/hi")
 	public String hi(@RequestParam("msg") String msg){

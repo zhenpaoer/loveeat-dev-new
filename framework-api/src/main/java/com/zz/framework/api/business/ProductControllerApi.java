@@ -55,4 +55,8 @@ public interface ProductControllerApi {
 	//商品砍价
 	@ApiOperation("商品砍价")
 	public ResponseResultWithData bargainByPid(int pid,HttpServletRequest request);
+
+	//更新商品状态
+	@ApiOperation("更新商品状态")
+	public ResponseResult updateProductIsSaleByPid(int pid,int issale,HttpServletRequest request);
 }

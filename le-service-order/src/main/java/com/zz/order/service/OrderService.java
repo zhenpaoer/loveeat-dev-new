@@ -21,6 +21,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class OrderService {
 
 
 	@Transactional
-	public ResponseResult createOrder(int uid,int pid){
+	public ResponseResult createOrder(int uid, int pid, HttpServletRequest request){
 		int id = pid;
 		GetLeProductPicMenuExtResult productResult = businessService.getProductById(id);
 		LeProduct leProduct = productResult.getLeProductPicMenuExt().getLeProduct();
@@ -62,35 +63,39 @@ public class OrderService {
 				//不存在 则可以下单
 				value = "uid = " + uid ;
 				stringRedisTemplate.boundValueOps(key).set(value,orderSeconds, TimeUnit.SECONDS);
-				//修改商品状态
-
-				//下订单
-				LeOrder order = LeOrder.builder().bid(leProduct.getBid())
-						.pid(pid)
-						.uid(uid)
-						.price(leProduct.getBargainprice())
-						.createDate(LocalDate.now())
-						.createTime(LocalDateTime.now())
-						.updateTime(LocalDateTime.now())
-						.status(0) //创建
-						.build();
-				int insert = leOrderMapper.insert(order);
-				if (insert > 0){
-					LeOrder localOrder = leOrderMapper.getOne(uid, pid, LocalDate.now());
-					//记录日志
-					String logContent = "uid=" + uid + "用户创建了订单,额度=" + localOrder.getPrice();
-					log.info(logContent);
-					LeOrderOperateLog log = LeOrderOperateLog.builder().oid(localOrder.getId())
-							.content(logContent)
+				//修改商品状态为销售中
+				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4,request);
+				if (responseResult.getCode() == 10000){
+					//下订单
+					LeOrder order = LeOrder.builder().bid(leProduct.getBid())
+							.pid(pid)
 							.uid(uid)
+							.price(leProduct.getBargainprice())
+							.createDate(LocalDate.now())
 							.createTime(LocalDateTime.now())
 							.updateTime(LocalDateTime.now())
+							.status(0) //创建
 							.build();
-					operateLogMapper.insert(log);
+					int insert = leOrderMapper.insert(order);
+					if (insert > 0){
+						LeOrder localOrder = leOrderMapper.getOne(uid, pid, LocalDate.now());
+						//记录日志
+						String logContent = "uid=" + uid + "用户创建了订单["+localOrder.getId()+"],额度=" + localOrder.getPrice();
+						log.info(logContent);
+						LeOrderOperateLog log = LeOrderOperateLog.builder().oid(localOrder.getId())
+								.content(logContent)
+								.uid(uid)
+								.createTime(LocalDateTime.now())
+								.updateTime(LocalDateTime.now())
+								.build();
+						operateLogMapper.insert(log);
+						return  new ResponseResult(CommonCode.SUCCESS);
+					}else {
+						return new ResponseResult(CommonCode.FAIL);
+					}
 				}else {
 					return new ResponseResult(CommonCode.FAIL);
 				}
-
 			}else {
 				//存在
 				return new ResponseResult(OrderCode.ORDER_PROCESSING);
@@ -100,13 +105,7 @@ public class OrderService {
 		} finally {
 			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
 		}
-
-
-
-
-
-
-		return null;
+		return new ResponseResult(CommonCode.FAIL);
 	}
 
 	//查询用户的订单

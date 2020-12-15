@@ -20,4 +20,7 @@ public interface LeProductMapper extends Mymapper<LeProduct> {
 
 	@Update("update le_product set bargainprice = #{bargainPrice},bargainpersonsum = bargainpersonsum + 1 where id = #{id}")
 	int updateBargainPrice(int id, BigDecimal bargainPrice);
+
+	@Update("update le_product set issale = #{issale} where id = #{pid}")
+	int updateIssale(int pid,int issale);
 }

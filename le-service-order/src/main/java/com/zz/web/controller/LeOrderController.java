@@ -54,6 +54,6 @@ public class LeOrderController  {
 			return new ResponseResultWithData(AuthCode.AUTH_LOGIN_ERROR,null);
 		}
 		int userId = Integer.parseInt(userJwt.getId());
-		return orderService.createOrder(userId,pid);
+		return orderService.createOrder(userId,pid,request);
 	}
 }

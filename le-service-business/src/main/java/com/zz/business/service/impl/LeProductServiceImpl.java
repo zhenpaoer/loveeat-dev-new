@@ -364,6 +364,15 @@ public class LeProductServiceImpl implements LeProductService {
 
 	}
 
+	@Override
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale) {
+		int i = leProductMapper.updateIssale(pid, issale);
+		if (i>0){
+			return new ResponseResult(CommonCode.SUCCESS);
+		}
+		return new ResponseResult(CommonCode.FAIL);
+	}
+
 	//根据原价格与砍价后价格的对比 得出百分比 在获取对应的
 	public  BigDecimal getBargainPrice(BigDecimal originalprice, BigDecimal bargainprice){
 		log.info("砍价==原价:{}，剩余价格：{}",originalprice,bargainprice);
