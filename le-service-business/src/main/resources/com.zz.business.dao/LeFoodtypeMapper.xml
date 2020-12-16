@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zz.web.controller.dao.LeFoodtypeMapper">
+<mapper namespace="com.zz.business.dao.LeFoodtypeMapper">
   <resultMap id="BaseResultMap" type="com.zz.framework.domain.business.LeFoodtype">
     <!--
       WARNING - @mbg.generated

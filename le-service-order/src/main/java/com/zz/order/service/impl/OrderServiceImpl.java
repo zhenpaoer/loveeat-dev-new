@@ -47,6 +47,9 @@ public class OrderServiceImpl implements OrderService {
 	public ResponseResult createOrder(int uid, int pid, HttpServletRequest request){
 		int id = pid;
 		GetLeProductPicMenuExtResult productResult = businessService.getProductById(id);
+		if (productResult.getCode() != 10000){
+			return new ResponseResult(CommonCode.FAIL);
+		}
 		LeProduct leProduct = productResult.getLeProductPicMenuExt().getLeProduct();
 		if (leProduct == null ){
 			return  new ResponseResult(ProductCode.PRODUCT_NOTCOMPLETE);
