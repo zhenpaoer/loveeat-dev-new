@@ -48,7 +48,7 @@ feign:
       retryer: 5 #Feign使用默认的超时配置，在该类源码中可见，默认单次请求最大时长1秒，重试5次
   hystrix:
     # 开启Feign的Hystrix熔断器支持
-    enabled: false
+    enabled: true
 
 #hystrix的超时时间
 hystrix:
