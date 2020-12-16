@@ -12,6 +12,7 @@ spring:
         url: http://localhost:9002
   redis:
     host: 127.0.0.1
+    password: 123456
     port: 6379
     timeout: 5000 #连接超时 毫秒
     jedis:

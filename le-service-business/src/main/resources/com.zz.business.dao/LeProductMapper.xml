@@ -54,7 +54,7 @@
 
   </select>
 
-    <select id="getHomeProduct" resultType="com.zz.framework.domain.business.LeProduct" parameterType="java.util.Map">
+    <!--<select id="getHomeProduct" resultType="com.zz.framework.domain.business.LeProduct" parameterType="java.util.Map">
         SELECT
         id,businessname,productname,bid,createtime,updatetime,state,status,foodtype,describ,originalprice,bargainprice,bargainpersonsum,issale,version,homepicture,rule,usetime,lon,lat,
         (st_distance (point (lon, lat),point(#{lon,jdbcType=VARCHAR},#{lat,jdbcType=VARCHAR}) ) / 0.0111) as distance
@@ -79,7 +79,7 @@
         ORDER BY ${sortType}
 
 
-    </select>
+    </select>-->
 
 
 </mapper>

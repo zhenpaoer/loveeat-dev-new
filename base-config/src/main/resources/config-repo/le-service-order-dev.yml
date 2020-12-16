@@ -1,9 +1,9 @@
 server:
-  port: 8040
+  port: 8100
 
 spring:
   application:
-    name: le-service-business
+    name: le-service-order
   zipkin:
     base-url: http://localhost:9003
   boot:

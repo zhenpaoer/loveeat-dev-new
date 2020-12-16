@@ -1,4 +1,4 @@
-package com.zz.business.config;
+package com.zz.order.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,12 +60,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 				//通过上边的配置虽然可以访问swagger-ui，但是无法进行单元测试，除非去掉认证的配置或在上边配置中添加所有 请求均放行（"/**"）。
 				.antMatchers("/v2/api‐docs", "/swagger-resources/configuration/ui",
 						"/swagger-resources","/swagger-resources/configuration/security",
-						"/swagger-ui.html","/webjars/**",
-						"/business/getBusById",
-						"/businessdetail/getBusDeById","/businessdetail/getBusDeList",
-						"/product/getbyid","/product/allforhome",
-						"/product/hi"
-//						"/product/bargain"
+						"/swagger-ui.html","/webjars/**"
+//						"/business/getBusById",
+//						"/businessdetail/getBusDeById","/businessdetail/getBusDeList",
+//						"/product/getbyid","/product/allforhome",
+//						"/product/hi"
+////						"/product/bargain"
 				).permitAll()
 				.anyRequest().authenticated();
 	}

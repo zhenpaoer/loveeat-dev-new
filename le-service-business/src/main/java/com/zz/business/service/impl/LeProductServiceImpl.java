@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sun.rmi.runtime.Log;
 import tk.mybatis.mapper.entity.Example;
 
@@ -320,16 +321,21 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//砍价
 	@Override
-	public synchronized  ResponseResultWithData  bargain(int pid) {
-		int uid = 1; //写死
+	@Transactional
+	public synchronized  ResponseResultWithData  bargain(int pid,int uid) {
 		LeProduct leProduct = leProductMapper.selectByPrimaryKey(pid);
 		BigDecimal needBargainPrice = null;
 		BigDecimal afterBargainPrice =null;
 		if (leProduct != null){
-
+			ArrayList<Integer> pids = new ArrayList<>();
+			pids.add(pid);
+			List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
+			if (listByPidUidDate.size()>0){
+				return new ResponseResultWithData(ProductCode.PRODUCT_BARGAIN_AGAIN_ERROR,null);
+			}
 			BigDecimal originalprice = leProduct.getOriginalprice(); //原价
 			BigDecimal bargainprice = leProduct.getBargainprice();//砍完之后的价格
-
+//			int beforeBargainPersonSum = leProduct.getBargainpersonsum();//砍价人数
 			needBargainPrice = getBargainPrice(originalprice, bargainprice);
 			afterBargainPrice = bargainprice.subtract(needBargainPrice);
 			//更新商品的砍价记录
@@ -345,15 +351,26 @@ public class LeProductServiceImpl implements LeProductService {
 			int insert = leBargainLogService.insert(bargainLog);
 			log.info("砍价===插入记录boolean:{}",insert);
 			log.info("砍价===本次砍了{},砍前：{}，砍后：{}",needBargainPrice,bargainprice,afterBargainPrice);
+			LeProduct leProductNew = leProductMapper.selectByPrimaryKey(pid);
 			HashMap<String,Object> data = new HashMap<>();
 			data.put("bargainPrice",needBargainPrice);
-			data.put("afterBargainPrice",afterBargainPrice);
+			data.put("afterBargainPrice",leProductNew.getBargainprice());
+			data.put("bargainPerson",leProductNew.getBargainpersonsum());
 			return new ResponseResultWithData(CommonCode.SUCCESS,data);
 		}else {
 			log.info("砍价===商品不存在");
 			return new ResponseResultWithData(CommonCode.FAIL,null);
 		}
 
+	}
+
+	@Override
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale) {
+		int i = leProductMapper.updateIssale(pid, issale);
+		if (i>0){
+			return new ResponseResult(CommonCode.SUCCESS);
+		}
+		return new ResponseResult(CommonCode.FAIL);
 	}
 
 	//根据原价格与砍价后价格的对比 得出百分比 在获取对应的

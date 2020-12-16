@@ -8,6 +8,7 @@ import com.zz.framework.domain.business.LeProductMenudetail;
 import com.zz.framework.domain.business.LeProductPicurl;
 import com.zz.framework.domain.business.response.GetLeProductPicMenuExtResult;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -39,5 +40,7 @@ public interface LeProductService {
 	ResponseResult delBusinessPic(String pid, String url);
 
 	//砍价
-	ResponseResultWithData bargain(int pid);
+	ResponseResultWithData bargain(int pid,int uid);
+
+	ResponseResult updateProductIsSaleByPid(int pid, int issale);
 }

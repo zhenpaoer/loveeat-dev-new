@@ -34,7 +34,7 @@ public interface ProductControllerApi {
 
 	//查询首页商品信息
 	@ApiOperation("查询首页商品信息")
-	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int uid,int cityId,int regionId,int areaId,String productType,String priceType, String sortType);
+	public QueryResponseResult<LeProduct> getAllForHome(int pageSize,int pageNo,String lon,String lat,String distance,int cityId,int regionId,int areaId,String productType,String priceType, String sortType,HttpServletRequest request);
 
 	//保存商品主要信息
 	@ApiOperation("保存商品主要信息")
@@ -53,6 +53,10 @@ public interface ProductControllerApi {
 	public ResponseResult delProductPic(String pid , String url);
 
 	//商品砍价
-	@ApiOperation("商品图片删除")
-	public ResponseResultWithData bargainByPid(int pid);
+	@ApiOperation("商品砍价")
+	public ResponseResultWithData bargainByPid(int pid,HttpServletRequest request);
+
+	//更新商品状态
+	@ApiOperation("更新商品状态")
+	public ResponseResult updateProductIsSaleByPid(int pid,int issale);
 }

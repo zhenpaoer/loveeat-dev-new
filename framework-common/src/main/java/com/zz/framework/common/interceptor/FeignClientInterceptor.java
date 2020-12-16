@@ -2,6 +2,9 @@ package com.zz.framework.common.interceptor;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -14,7 +17,6 @@ import java.util.Enumeration;
 public class FeignClientInterceptor implements RequestInterceptor {
 	@Override
 	public void apply(RequestTemplate template) {
-
 		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (requestAttributes != null){
 			HttpServletRequest request = requestAttributes.getRequest();
@@ -24,6 +26,9 @@ public class FeignClientInterceptor implements RequestInterceptor {
 					String headerName = headerNames.nextElement();
 					String values = request.getHeader(headerName);
 					if (headerName.equals("authrization")){
+						template.header(headerName,values);
+					}
+					if (headerName.equals("token")){
 						template.header(headerName,values);
 					}
 					if (headerName.equals("Authrization")){
