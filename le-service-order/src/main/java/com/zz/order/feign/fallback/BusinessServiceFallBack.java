@@ -21,7 +21,7 @@ public class BusinessServiceFallBack implements BusinessService {
 	}
 
 	@Override
-	public ResponseResult updateProductIsSaleByPid(int pid, int issale, HttpServletRequest request) {
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale) { //, HttpServletRequest request
 		log.info( " this is le-service-order , but request Product error");
 		return new GetLeProductPicMenuExtResult(CommonCode.FAIL,null);
 	}

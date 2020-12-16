@@ -58,5 +58,5 @@ public interface ProductControllerApi {
 
 	//更新商品状态
 	@ApiOperation("更新商品状态")
-	public ResponseResult updateProductIsSaleByPid(int pid,int issale,HttpServletRequest request);
+	public ResponseResult updateProductIsSaleByPid(int pid,int issale);
 }

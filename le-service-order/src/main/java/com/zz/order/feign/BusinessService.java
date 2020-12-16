@@ -1,5 +1,6 @@
 package com.zz.order.feign;
 
+import com.zz.framework.common.interceptor.FeignClientInterceptor;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.business.response.GetBusinessDetailResult;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created by zhangzhen on 2020/3/19
  * Feign远程调用接口，@FeignClient配置了远程调用其他应用接口的应用名称
  */
-@FeignClient(value = "le-service-business",path = "product",fallback = BusinessServiceFallBack.class)
+@FeignClient(value = "le-service-business",path = "product",fallback = BusinessServiceFallBack.class,configuration = FeignClientInterceptor.class)
 public interface BusinessService {
 	/**
 	 * 这里暴露一个Feign接口地址，其中`@GetMapping`中的地址一定对应了`template-admin`服务中某个Controller中的请求地址（如果`template-admin`服务中没有这个接口地址就会404）
@@ -32,5 +33,6 @@ public interface BusinessService {
 
 	@PostMapping("/updateproductissale")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-	public ResponseResult updateProductIsSaleByPid(@RequestParam("pid")int pid, @RequestParam("issale")int issale, HttpServletRequest request);
+	public ResponseResult updateProductIsSaleByPid(@RequestParam("pid")int pid, @RequestParam("issale")int issale);
+//	public ResponseResult updateProductIsSaleByPid(@RequestParam("pid")int pid, @RequestParam("issale")int issale, HttpServletRequest request);
 }

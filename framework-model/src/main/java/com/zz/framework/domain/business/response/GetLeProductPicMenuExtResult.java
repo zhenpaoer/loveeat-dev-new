@@ -5,7 +5,10 @@ package com.zz.framework.domain.business.response;/**
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResultCode;
 import com.zz.framework.domain.business.ext.LeProductPicMenuExt;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @ClassName GetLeProductPicMenuExtResult
@@ -15,6 +18,9 @@ import lombok.Data;
  * @Version V1.0
  **/
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetLeProductPicMenuExtResult extends ResponseResult {
 	private LeProductPicMenuExt leProductPicMenuExt;
 	public GetLeProductPicMenuExtResult(ResultCode resultCode, LeProductPicMenuExt leProductPicMenuExt) {

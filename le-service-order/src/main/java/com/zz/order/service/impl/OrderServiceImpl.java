@@ -63,12 +63,13 @@ public class OrderServiceImpl implements OrderService {
 			//先查redis存不存在
 			String key = "order_" + pid;
 			String value = stringRedisTemplate.opsForValue().get(key);
-			if (StringUtils.isNotBlank(value)){
+			if (StringUtils.isBlank(value)){
 				//不存在 则可以下单
 				value = "uid = " + uid ;
 				stringRedisTemplate.boundValueOps(key).set(value,orderSeconds, TimeUnit.SECONDS);
 				//修改商品状态为销售中
-				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4,request);
+//				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4,request);
+				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4);
 				if (responseResult.getCode() == 10000){
 					//下订单
 					LeOrder order = LeOrder.builder().bid(leProduct.getBid())

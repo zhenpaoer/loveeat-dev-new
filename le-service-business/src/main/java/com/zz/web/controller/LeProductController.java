@@ -218,7 +218,7 @@ public class LeProductController implements ProductControllerApi {
 	@Override
 	@PostMapping("/updateproductissale")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-	public ResponseResult updateProductIsSaleByPid(int pid, int issale, HttpServletRequest request) {
+	public ResponseResult updateProductIsSaleByPid(int pid, int issale) {
 		if (pid <= 0){
 			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}

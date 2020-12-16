@@ -9,10 +9,7 @@ import com.zz.order.service.impl.OrderServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,7 +39,7 @@ public class LeOrderController  {
 	//此场景不适合
 	@PostMapping("/createorder")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-	public ResponseResult createOrder(int pid, HttpServletRequest request){
+	public ResponseResult createOrder(@RequestParam(value = "pid",required = true,defaultValue = "0")Integer pid, HttpServletRequest request){
 		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
 		if (userJwt == null){
 			return new ResponseResultWithData(AuthCode.AUTH_LOGIN_ERROR,null);
