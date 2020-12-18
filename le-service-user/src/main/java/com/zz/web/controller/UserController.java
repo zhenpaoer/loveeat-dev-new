@@ -85,7 +85,7 @@ public class UserController implements UserControllerApi {
 	@GetMapping("getuser")
 	public GetUserExtResult getUserext(@RequestParam("username") String userName) {
 		if (StringUtils.isEmpty(userName)){
-			return new GetUserExtResult(UserCode.USER_USERNAME_CHECK_ERROR,null);
+			ExceptionCast.cast(UserCode.USER_USERNAME_CHECK_ERROR);
 		}
 		return userService.getUserExt(userName);
 	}
@@ -97,7 +97,7 @@ public class UserController implements UserControllerApi {
 									   @RequestParam("userpic") String userpic,	@RequestParam("address") String address,
 									   @RequestParam("lon") String lon,	@RequestParam("lat") String lat) {
 		if (StringUtils.isEmpty(openid)){
-			return new ResponseResult(UserCode.USER_OPENID_NONE);
+			ExceptionCast.cast(UserCode.USER_OPENID_NONE);
 		}
 		LeUserBasic user = new LeUserBasic();
 		user.setOpenid(openid);
@@ -131,7 +131,7 @@ public class UserController implements UserControllerApi {
 	@GetMapping("getuserbyopenid")
 	public GetUserExtResult getUserextByOpenid(@RequestParam("openid") String openid) {
 		if (StringUtils.isEmpty(openid)){
-			return new GetUserExtResult(UserCode.USER_USERNAME_CHECK_ERROR,null);
+			ExceptionCast.cast(UserCode.USER_USERNAME_CHECK_ERROR);
 		}
 		return userService.getUserextByOpenid(openid);
 	}
@@ -162,7 +162,7 @@ public class UserController implements UserControllerApi {
 		String userid = jsonObject.getString("id");
 		LeUserBasic leUserBasic = leUserBasicMapper.selectByPrimaryKey(Integer.parseInt(userid));
 		if (leUserBasic == null){
-			return new ResponseResult(UserCode.USER_LOGIN_ERROR);
+			ExceptionCast.cast(UserCode.USER_LOGIN_ERROR);
 		}
 		log.info("更新用户信息id={}",userid);
 		return userService.updateUserLogin(leUserBasic.getOpenid(),nickName,avatarUrl,address,lon,lat);

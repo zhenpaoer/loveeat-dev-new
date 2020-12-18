@@ -25,4 +25,10 @@ public class BusinessServiceFallBack implements BusinessService {
 		log.info( " this is le-service-order , but request Product error");
 		return new GetLeProductPicMenuExtResult(CommonCode.FAIL,null);
 	}
+
+	@Override
+	public ResponseResult updateProductIsSaleToOne(int pid) {
+		log.info( " this is le-service-order , but request Product error");
+		return new ResponseResult(CommonCode.FAIL);
+	}
 }

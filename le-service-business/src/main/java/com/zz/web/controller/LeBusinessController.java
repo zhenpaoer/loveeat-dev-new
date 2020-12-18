@@ -4,6 +4,7 @@ package com.zz.web.controller;/**
 
 import com.zz.business.service.LeBusinessService;
 import com.zz.framework.api.business.BusinessControllerApi;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;
@@ -35,13 +36,13 @@ public class LeBusinessController implements BusinessControllerApi {
 	@GetMapping("/getBusById")
 	public GetBusinessInfoResult getBusById(@RequestParam int id) {
 		if (id < 0 ){
-			return new GetBusinessInfoResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
+			ExceptionCast.cast(BusinessCode.BUSINESS_CHECK_ID_FALSE);
 		}
 		LeBusiness leBusiness = leBusinessService.getLeBusiness(id);
-		if (leBusiness != null){
-			return new GetBusinessInfoResult(CommonCode.SUCCESS,leBusiness);
+		if (leBusiness == null){
+			ExceptionCast.cast(BusinessCode.BUSINESS_NOTEXIT);
 		}
-		return new GetBusinessInfoResult(BusinessCode.BUSINESS_NOTEXIT,null);
+		return new GetBusinessInfoResult(CommonCode.SUCCESS,leBusiness);
 	}
 
 	//获取所有商家信息

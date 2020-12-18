@@ -14,9 +14,9 @@ import lombok.ToString;
 public enum AreaCode implements ResultCode {
     AREA_CREATE_FALSE(false,1001,"添加区域失败！"),
     AREA_CHECK_ID_FALSE(false,1002,"id校验失败，请重试！"),
-    AREA_CHECK_NAME_FALSE(false,1002,"区域名称校验失败，请重试！"),
-    AREA_NOTEXIT(false,1003,"区域不存在，请重试！"),
-    AREA_UPDATE_FALSE(false,1006,"修改区域失败！");
+    AREA_CHECK_NAME_FALSE(false,1003,"区域名称校验失败，请重试！"),
+    AREA_NOTEXIT(false,1004,"区域不存在，请重试！"),
+    AREA_UPDATE_FALSE(false,1005,"修改区域失败！");
 
     //操作代码
     @ApiModelProperty(value = "操作是否成功", example = "true", required = true)

@@ -6,6 +6,8 @@ import com.zz.business.dao.LeBusinessDetailMapper;
 import com.zz.business.feign.PictureService;
 import com.zz.business.service.LeBusinessDetailService;
 import com.zz.framework.api.business.BusinessDetailControllerApi;
+import com.zz.framework.common.exception.ExceptionCast;
+import com.zz.framework.common.exception.ExceptionCatch;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;
@@ -48,13 +50,14 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	@GetMapping("/getBusDeById")
 	public GetBusinessDetailResult getBusDeById(@RequestParam int id) {
 		if (id < 0 ){
-			return new GetBusinessDetailResult(BusinessCode.BUSINESS_CHECK_ID_FALSE,null);
+			ExceptionCast.cast(BusinessCode.BUSINESS_CHECK_ID_FALSE);
 		}
 		LeBusinessDetail leBusinessDetail = leBusinessDetailService.getLeBusinessDetail(id);
-		if (leBusinessDetail != null){
-			return new GetBusinessDetailResult(CommonCode.SUCCESS,leBusinessDetail);
+		if (leBusinessDetail == null){
+			ExceptionCast.cast(BusinessCode.BUSINESS_NOTEXIT);
 		}
-		return new GetBusinessDetailResult(BusinessCode.BUSINESS_NOTEXIT,null);
+		return new GetBusinessDetailResult(CommonCode.SUCCESS,leBusinessDetail);
+
 	}
 	//查询商家信息
 	@Override
@@ -115,26 +118,27 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveBusinessPic(@RequestPart MultipartFile file, @RequestParam String bid) { //分店id
 		if (Integer.parseInt(bid) < 0){
-			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
 		ResponseResultWithData result = pictureService.uploadBusPic(file, bid);
-		if (result == null ) return new ResponseResult(PictureCode.PICTURE_UPLOAD_ERROR);
+		if (result == null ) ExceptionCast.cast(PictureCode.PICTURE_UPLOAD_ERROR);
 		int code = result.getCode();
 		if (code != 10000){
-			return new ResponseResult(PictureCode.PICTURE_UPLOAD_ERROR);
+			ExceptionCast.cast(PictureCode.PICTURE_UPLOAD_ERROR);
 		}
 		HashMap<String, Object> data = result.getData();
 		String picUrl = (String)data.get("downFileUrl");
 		LeBusinessDetail leBusinessDetail1 = leBusinessDetailService.getLeBusinessDetail(Integer.parseInt(bid));
-		if (leBusinessDetail1 != null){
-			leBusinessDetail1.setUrl(picUrl);
-			int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail1);
-			if (updateResult == 1){
-				return new ResponseResult(CommonCode.SUCCESS);
-			}
-			return  new ResponseResult(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
+		if (leBusinessDetail1 == null){
+			ExceptionCast.cast(BusinessCode.BUSINESS_NOTEXIT);
 		}
-		return new ResponseResult(BusinessCode.BUSINESS_NOTEXIT);
+		leBusinessDetail1.setUrl(picUrl);
+		int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail1);
+		if (updateResult <= 0){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
+		}
+		return new ResponseResult(CommonCode.SUCCESS);
+
 	}
 
 
@@ -142,10 +146,11 @@ public class LeBusinessDetailController implements BusinessDetailControllerApi {
 	@PostMapping(value = "delbusinesspic")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult delBusinessPic(String bid, String url) {
-		if (StringUtils.isNotEmpty(bid) && StringUtils.isNotEmpty(url)){
-			return leBusinessDetailService.delBusinessPic(bid,url);
+		if (StringUtils.isEmpty(bid) || StringUtils.isEmpty(url)){
+			ExceptionCast.cast(BusinessCode.BUSINESS_CHECK_ID_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESS_CHECK_ID_FALSE);
+		return leBusinessDetailService.delBusinessPic(bid,url);
+
 	}
 
 }

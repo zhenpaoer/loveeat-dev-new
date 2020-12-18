@@ -14,12 +14,12 @@ import java.util.List;
 public interface LeProductMenudetailMapper extends Mymapper<LeProductMenudetail> {
 
 	//通过pid获取菜单
-	@Select({
+	/*@Select({
 			" <script> ",
 			" SELECT a.id aid, a.title title, b.id bid, b.item item, b.price price FROM le_product_menudetail a LEFT JOIN le_product_menudetail b ON a.id = b.parentid",
-			" WHERE a.parentid = '0'AND a.pid = #{pid}",
+			" WHERE a.parentid = '0' AND a.pid = #{pid}",
 			" ORDER BY a.id,b.id ",
 			" </script> "
-	})
+	})*/
 	List<LeProductMenuNode> getProductMenuByPid(int pid);
 }

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface LeProductService {
 	//根据id获取商品信息
-	public GetLeProductPicMenuExtResult getLeProduct(int id);
+	public GetLeProductPicMenuExtResult getLeProduct(int id,int uid);
 
 	//给用户展示的商品
 	public  QueryResponseResult<LeProduct> getAll();
@@ -43,4 +43,6 @@ public interface LeProductService {
 	ResponseResultWithData bargain(int pid,int uid);
 
 	ResponseResult updateProductIsSaleByPid(int pid, int issale);
+	//issale状态改为1
+	public ResponseResult updateProductIsSaleToOne(int pid);
 }

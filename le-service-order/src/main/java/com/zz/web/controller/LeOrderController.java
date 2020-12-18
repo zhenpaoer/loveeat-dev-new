@@ -1,5 +1,6 @@
 package com.zz.web.controller;
 
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.user.response.AuthCode;
@@ -25,7 +26,7 @@ public class LeOrderController  {
 	public ResponseResultWithData getOrdersByUid(int uid, HttpServletRequest request){
 		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
 		if (userJwt == null){
-			return new ResponseResultWithData(AuthCode.AUTH_LOGIN_ERROR,null);
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_ERROR);
 		}
 		int userId;
 		if (uid == 0){
@@ -42,7 +43,7 @@ public class LeOrderController  {
 	public ResponseResult createOrder(@RequestParam(value = "pid",required = true,defaultValue = "0")Integer pid, HttpServletRequest request){
 		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
 		if (userJwt == null){
-			return new ResponseResultWithData(AuthCode.AUTH_LOGIN_ERROR,null);
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_ERROR);
 		}
 		int userId = Integer.parseInt(userJwt.getId());
 		return orderService.createOrder(userId,pid,request);

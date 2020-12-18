@@ -19,6 +19,8 @@ public class LeOrder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int id ;
+	//交易号
+	String tradeNo;
 	//商家id
 	int bid;
 	//商品id

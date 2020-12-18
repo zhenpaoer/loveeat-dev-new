@@ -2,9 +2,7 @@ package com.zz.framework.common.interceptor;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -25,13 +23,13 @@ public class FeignClientInterceptor implements RequestInterceptor {
 				while (headerNames.hasMoreElements()){
 					String headerName = headerNames.nextElement();
 					String values = request.getHeader(headerName);
-					if (headerName.equals("authrization")){
+					if (headerName.equals("authorization")){
 						template.header(headerName,values);
 					}
 					if (headerName.equals("token")){
 						template.header(headerName,values);
 					}
-					if (headerName.equals("Authrization")){
+					if (headerName.equals("Authorization")){
 						template.header(headerName,values);
 					}
 				}

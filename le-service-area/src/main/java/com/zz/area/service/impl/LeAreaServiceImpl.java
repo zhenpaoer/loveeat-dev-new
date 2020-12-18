@@ -2,6 +2,8 @@ package com.zz.area.service.impl;
 
 import com.zz.area.dao.LeAreaMapper;
 import com.zz.area.service.LeAreaService;
+import com.zz.framework.common.exception.ExceptionCast;
+import com.zz.framework.common.exception.ExceptionCatch;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
@@ -33,11 +35,10 @@ public class LeAreaServiceImpl  implements LeAreaService {
 		leArea.setUpdatetime(LocalDateTime.now());
 
 		int insert = leAreaMapper.insertArea(leArea);
-//		int insert = leAreaMapper.insertUseGeneratedKeys(leArea);
-		if (insert > 0){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (insert <= 0) {
+			ExceptionCast.cast(AreaCode.AREA_CREATE_FALSE);
 		}
-		return new ResponseResult(AreaCode.AREA_CREATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//根据城市id查询，如果是0则查询所有

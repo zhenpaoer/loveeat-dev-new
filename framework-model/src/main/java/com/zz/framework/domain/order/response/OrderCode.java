@@ -19,8 +19,7 @@ public enum OrderCode implements ResultCode {
 	ORDER_NULL(false,1001,"订单不存在"),
 	ORDER_PROCESSING(false,1002,"其他人正在购买中，再看看别的吧"),
 	ORDER_SALED(false,1003,"商品已售，明日再来"),
-	PRODUCT_CHECK_PID_FALSE(false,1003,"商家id校验失败，请重试！"),
-	PRODUCT_OTHER_ERROR(false,1099,"其他异常，请重试！");
+	ORDER_REBUY(false,1004,"不可重复下单");
 
 	//操作代码
 	@ApiModelProperty(value = "操作是否成功", example = "true", required = true)

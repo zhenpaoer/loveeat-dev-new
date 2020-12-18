@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 		criteria.andEqualTo("username", userName);
 		LeUserBasic leUserBasic = leUserBasicMapper.selectOneByExample(example);
 		if (leUserBasic == null) {
-			return new GetUserExtResult(UserCode.USER_ACCOUNT_NOTEXISTS,null);
+			ExceptionCast.cast(UserCode.USER_ACCOUNT_NOTEXISTS);
 		}
 
 		LeUserExt leUserExt = new LeUserExt();
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
 		LeUserBasic leUserBasic = leUserBasicMapper.getByOpenId(openid);
 		if (leUserBasic == null) {
-			return new GetUserExtResult(UserCode.USER_ACCOUNT_NOTEXISTS,null);
+			ExceptionCast.cast(UserCode.USER_ACCOUNT_NOTEXISTS);
 		}
 
 		LeUserExt leUserExt = new LeUserExt();
@@ -164,7 +164,9 @@ public class UserServiceImpl implements UserService {
 	public ResponseResult updateUserLogin(String openid,String nickName,String avatarUrl,String address,String lon,String lat) {
 
 		Integer integer = leUserBasicMapper.updateUserLogin(openid,nickName,avatarUrl,address,lon,lat);
-
+		if (integer <= 0){
+			ExceptionCast.cast(UserCode.USER_LOGIN_ERROR);
+		}
 		return new ResponseResult(CommonCode.SUCCESS);
 	}
 

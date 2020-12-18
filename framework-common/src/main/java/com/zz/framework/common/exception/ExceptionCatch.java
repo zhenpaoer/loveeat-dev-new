@@ -29,7 +29,7 @@ public class ExceptionCatch {
 	@ExceptionHandler(CustomException.class)
 	@ResponseBody //对象转Json
 	public ResponseResult CatchEec(CustomException e) {
-		logger.error("catch exception : {}\r\nexception: ", e.getMessage(), e);
+		logger.info("catch exception : {}\r\nexception: ", e.getResultCode().message());
 		ResultCode resultCode = e.getResultCode();
 		return new ResponseResult(resultCode);
 	}

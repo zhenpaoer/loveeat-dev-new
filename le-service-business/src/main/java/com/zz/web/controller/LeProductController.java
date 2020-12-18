@@ -6,6 +6,7 @@ import com.zz.business.feign.PictureService;
 import com.zz.business.feign.ProviderService;
 import com.zz.business.service.LeProductService;
 import com.zz.framework.api.business.ProductControllerApi;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
@@ -75,8 +76,13 @@ public class LeProductController implements ProductControllerApi {
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
 	@GetMapping("/getbyid")
-	public GetLeProductPicMenuExtResult getProductById(@RequestParam("id") int id) {
-		return leProductService.getLeProduct(id);
+	public GetLeProductPicMenuExtResult getProductById(@RequestParam("id") int id,HttpServletRequest request) {
+		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
+		int uid = 0;
+		if(userJwt != null){
+			uid = Integer.parseInt(userJwt.getId());
+		}
+		return leProductService.getLeProduct(id,uid);
 	}
 
 	//查询所有商品信息
@@ -110,16 +116,16 @@ public class LeProductController implements ProductControllerApi {
 			pageSize = 1;
 		}
 		if (StringUtils.isEmpty(lon)){
-			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_LOCATION_ERROR);
 		}
 		if (StringUtils.isEmpty(lat)){
-			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_LOCATION_ERROR,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_LOCATION_ERROR);
 		}
 		if ((cityId + regionId + areaId) == 0 ){
-			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_AREA_ERROR);
 		}
 		if ("".equals(productType) || "".equals(priceType) || "".equals(sortType)){
-			return new QueryResponseResult(ProductCode.PRODUCT_CHECK_AREA_ERROR,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_AREA_ERROR);
 		}
 		return leProductService.getAllForHome(pageSize,pageNo,lon,lat,distance,cityId,regionId,areaId,productType,priceType, sortType,uid);
 	}
@@ -129,25 +135,25 @@ public class LeProductController implements ProductControllerApi {
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProduct(LeProduct leProduct, int bid) {
 		if (bid < 0 ){
-			return new ResponseResult(ProductCode.PRODUCT_CHECK_BID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_BID_FALSE);
 		}
 		if (leProduct == null){
-			return new ResponseResult(ProductCode.PRODUCT_PARAM_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_PARAM_NULL);
 		}
 		if ("".equals(leProduct.getDescrib())) {
-			return new ResponseResult(ProductCode.PRODUCT_DISCRI_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_DISCRI_NULL);
 		}
 		if ("".equals(leProduct.getBusinessname())) {
-			return new ResponseResult(ProductCode.PRODUCT_BUSINESSNAME_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_BUSINESSNAME_NULL);
 		}
 		if ("".equals(leProduct.getProductname())) {
-			return new ResponseResult(ProductCode.PRODUCT_NAME_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_NAME_NULL);
 		}
 		if (leProduct.getOriginalprice().equals(new BigDecimal(0))) {
-			return new ResponseResult(ProductCode.PRODUCT_PRICE_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_PRICE_NULL);
 		}
 		if (leProduct.getFoodtype() == 0) {
-			return new ResponseResult(ProductCode.PRODUCT_FOODTYPE_NULL);
+			ExceptionCast.cast(ProductCode.PRODUCT_FOODTYPE_NULL);
 		}
 		return leProductService.saveProduct(leProduct,bid);
 	}
@@ -157,7 +163,7 @@ public class LeProductController implements ProductControllerApi {
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult saveProductMenu(List<LeProductMenudetail> leProductMenudetails, int pid) {
 		if (pid < 0){
-			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
 		return leProductService.saveProductMenu(leProductMenudetails,pid);
 	}
@@ -168,10 +174,10 @@ public class LeProductController implements ProductControllerApi {
 	public ResponseResult saveProductPic(@RequestPart MultipartFile file,@RequestParam String pid) {
 //		String pid = request.getParameter("pid");
 		if (Integer.parseInt(pid) < 0){
-			return new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
 		ResponseResultWithData result = pictureService.uploadProPic(file, pid);
-		if (result == null ) return new ResponseResult(PictureCode.PICTURE_UPLOAD_ERROR);
+		if (result == null ) ExceptionCast.cast(PictureCode.PICTURE_UPLOAD_ERROR);
 		int code = result.getCode();
 		if (code != 10000){
 			return new ResponseResult(PictureCode.PICTURE_UPLOAD_ERROR);
@@ -188,10 +194,11 @@ public class LeProductController implements ProductControllerApi {
 	@GetMapping("delproductpic")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS')")
 	public ResponseResult delProductPic(String pid, String url) {
-		if (StringUtils.isNotEmpty(pid) && StringUtils.isNotEmpty(url)) {
-			return leProductService.delBusinessPic(pid, url);
+		if(StringUtils.isEmpty(pid) || StringUtils.isEmpty(url)){
+			ExceptionCast.cast(BusinessCode.BUSINESS_CHECK_ID_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESS_CHECK_ID_FALSE);
+		return leProductService.delBusinessPic(pid, url);
+
 	}
 
 	//对商品砍价
@@ -201,16 +208,16 @@ public class LeProductController implements ProductControllerApi {
 	public ResponseResultWithData bargainByPid(int pid,HttpServletRequest request) {
 		LeOauth2Util.UserJwt userJwt = LeOauth2Util.getUserJwtFromHeader(request);
 		if (userJwt == null){
-			new ResponseResult(AuthCode.AUTH_LOGIN_ERROR);
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_ERROR);
 		}
 		assert userJwt != null;
 		String uid = userJwt.getId();
 //		String uid = getUidByToken(request);
 		if (pid <= 0){
-			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
 		if (StringUtils.isEmpty(uid) || Integer.parseInt(uid) <= 0){
-			new ResponseResult(ProductCode.PRODUCT_CHECK_ID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_ID_FALSE);
 		}
 		return leProductService.bargain(pid,Integer.parseInt(uid)) ;
 	}
@@ -220,12 +227,21 @@ public class LeProductController implements ProductControllerApi {
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	public ResponseResult updateProductIsSaleByPid(int pid, int issale) {
 		if (pid <= 0){
-			new ResponseResult(ProductCode.PRODUCT_CHECK_PID_FALSE);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
 		}
 		if (issale <= 0){
-			new ResponseResult(ProductCode.PRODUCT_ISSALE_ERROR);
+			ExceptionCast.cast(ProductCode.PRODUCT_ISSALE_ERROR);
 		}
 		return leProductService.updateProductIsSaleByPid(pid,issale);
+	}
+
+	@Override
+	@GetMapping("/updateProductIsSaleToOne")
+	public ResponseResult updateProductIsSaleToOne(@RequestParam("pid")int pid) {
+		if (pid <= 0){
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_PID_FALSE);
+		}
+		return leProductService.updateProductIsSaleToOne(pid);
 	}
 
 	//测试服务提供者

@@ -4,6 +4,7 @@ package com.zz.business.service.impl;/**
 
 import com.zz.business.dao.LeBusinessMapper;
 import com.zz.business.service.LeBusinessService;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.QueryResult;
@@ -51,9 +52,9 @@ public class LeBusinessServiceImpl implements LeBusinessService {
 	@Override
 	public ResponseResult createLeBusiness(LeBusiness leBusiness) {
 		int result = leBusinessMapper.insert(leBusiness);
-		if (result == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (result != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESS_CREATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESS_CREATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 }

@@ -34,5 +34,7 @@ public interface BusinessService {
 	@PostMapping("/updateproductissale")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_USER')")
 	public ResponseResult updateProductIsSaleByPid(@RequestParam("pid")int pid, @RequestParam("issale")int issale);
-//	public ResponseResult updateProductIsSaleByPid(@RequestParam("pid")int pid, @RequestParam("issale")int issale, HttpServletRequest request);
+
+	@GetMapping("/updateProductIsSaleToOne")
+	public ResponseResult updateProductIsSaleToOne(@RequestParam("pid")int pid);
 }

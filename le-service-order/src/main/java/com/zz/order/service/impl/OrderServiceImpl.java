@@ -1,5 +1,6 @@
 package com.zz.order.service.impl;
 
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
@@ -9,6 +10,8 @@ import com.zz.framework.domain.business.response.ProductCode;
 import com.zz.framework.domain.order.LeOrder;
 import com.zz.framework.domain.order.LeOrderOperateLog;
 import com.zz.framework.domain.order.response.OrderCode;
+import com.zz.framework.utils.SnowflakeIdWorker;
+import com.zz.order.config.RabbitMQConfig;
 import com.zz.order.dao.LeOrderMapper;
 import com.zz.order.dao.LeOrderOperateLogMapper;
 import com.zz.order.feign.BusinessService;
@@ -16,6 +19,10 @@ import com.zz.order.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Many;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -40,6 +47,8 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	LeOrderOperateLogMapper operateLogMapper;
 
+	@Autowired
+	private AmqpTemplate amqpTemplate;
 	int orderSeconds = 300;
 
 
@@ -48,32 +57,48 @@ public class OrderServiceImpl implements OrderService {
 		int id = pid;
 		GetLeProductPicMenuExtResult productResult = businessService.getProductById(id);
 		if (productResult.getCode() != 10000){
-			return new ResponseResult(CommonCode.FAIL);
+			ExceptionCast.cast(CommonCode.FAIL);
 		}
 		LeProduct leProduct = productResult.getLeProductPicMenuExt().getLeProduct();
 		if (leProduct == null ){
-			return  new ResponseResult(ProductCode.PRODUCT_NOTCOMPLETE);
+			ExceptionCast.cast(ProductCode.PRODUCT_NOTCOMPLETE);
 		}
 		if (leProduct.getIssale() == 3){
 			//今日已售
-			return  new ResponseResult(OrderCode.ORDER_SALED);
+			ExceptionCast.cast(OrderCode.ORDER_SALED);
+		}
+		if (leProduct.getIssale() == 4){
+			//支付中的
+			//判断是不是自己的订单
+			LeOrder byPidAndDate = leOrderMapper.getByPidAndDate(pid, LocalDate.now());
+			if (byPidAndDate == null){
+				ExceptionCast.cast(CommonCode.FAIL);
+			}
+			int uid1 = byPidAndDate.getUid();
+			if (uid1 == uid) {
+				ExceptionCast.cast(OrderCode.ORDER_REBUY);
+			}else {
+				ExceptionCast.cast(OrderCode.ORDER_PROCESSING);
+			}
 		}
 		Long expire = null;
 		try {
 			//先查redis存不存在
-			String key = "order_" + pid;
+			String key = "product_" + pid;
 			String value = stringRedisTemplate.opsForValue().get(key);
 			if (StringUtils.isBlank(value)){
 				//不存在 则可以下单
 				value = "uid = " + uid ;
 				stringRedisTemplate.boundValueOps(key).set(value,orderSeconds, TimeUnit.SECONDS);
 				//修改商品状态为销售中
-//				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4,request);
 				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4);
 				if (responseResult.getCode() == 10000){
 					//下订单
+					SnowflakeIdWorker snowflakeIdWorker = new SnowflakeIdWorker(1,1);
+					String tradeNo = snowflakeIdWorker.nextId()+"";
 					LeOrder order = LeOrder.builder().bid(leProduct.getBid())
 							.pid(pid)
+							.tradeNo(tradeNo)
 							.uid(uid)
 							.price(leProduct.getBargainprice())
 							.createDate(LocalDate.now())
@@ -81,29 +106,32 @@ public class OrderServiceImpl implements OrderService {
 							.updateTime(LocalDateTime.now())
 							.status(0) //创建
 							.build();
-					int insert = leOrderMapper.insert(order);
+					int insert = leOrderMapper.insertOrder(order);
 					if (insert > 0){
 						LeOrder localOrder = leOrderMapper.getOne(uid, pid, LocalDate.now());
+						int oid = localOrder.getId();
 						//记录日志
-						String logContent = "uid=" + uid + "用户创建了订单["+localOrder.getId()+"],额度=" + localOrder.getPrice();
+						String logContent = "uid=" + uid + "用户创建了订单["+oid+"],额度=" + localOrder.getPrice();
 						log.info(logContent);
-						LeOrderOperateLog log = LeOrderOperateLog.builder().oid(localOrder.getId())
+						LeOrderOperateLog log = LeOrderOperateLog.builder().oid(oid)
 								.content(logContent)
 								.uid(uid)
 								.createTime(LocalDateTime.now())
 								.updateTime(LocalDateTime.now())
 								.build();
-						operateLogMapper.insert(log);
+						operateLogMapper.insertOrderLog(log);
+
+						sendDelayMsg(oid,orderSeconds);
 						return  new ResponseResult(CommonCode.SUCCESS);
 					}else {
-						return new ResponseResult(CommonCode.FAIL);
+						ExceptionCast.cast(CommonCode.FAIL);
 					}
 				}else {
-					return new ResponseResult(CommonCode.FAIL);
+					ExceptionCast.cast(CommonCode.FAIL);
 				}
 			}else {
 				//存在
-				return new ResponseResult(OrderCode.ORDER_PROCESSING);
+				ExceptionCast.cast(OrderCode.ORDER_PROCESSING);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -111,6 +139,19 @@ public class OrderServiceImpl implements OrderService {
 			RedisConnectionUtils.unbindConnection(stringRedisTemplate.getConnectionFactory());
 		}
 		return new ResponseResult(CommonCode.FAIL);
+	}
+
+	//延迟队列 发送延迟消息 5分钟没有支付就关闭订单
+	private void sendDelayMsg(int oid,int time) {
+
+		//rabbit默认为毫秒级
+		long times = time * 1000;
+		MessagePostProcessor processor = message -> {
+			message.getMessageProperties().setExpiration(String.valueOf(times));
+			return message;
+		};
+		amqpTemplate.convertAndSend(RabbitMQConfig.ORDINARY_EXCHANGE, RabbitMQConfig.ORDINARY_ROUTEKEY, oid, processor);
+		log.info("我发送了消息，oid="+oid);
 	}
 
 	//查询用户的订单

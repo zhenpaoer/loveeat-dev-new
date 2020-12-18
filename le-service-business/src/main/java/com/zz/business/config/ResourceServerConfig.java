@@ -64,8 +64,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 						"/business/getBusById",
 						"/businessdetail/getBusDeById","/businessdetail/getBusDeList",
 						"/product/getbyid","/product/allforhome",
+						"/product/updateProductIsSaleToOne", //没有支付时消费者将商品状态变为1
 						"/product/hi"
 //						"/product/bargain"
+
 				).permitAll()
 				.anyRequest().authenticated();
 	}

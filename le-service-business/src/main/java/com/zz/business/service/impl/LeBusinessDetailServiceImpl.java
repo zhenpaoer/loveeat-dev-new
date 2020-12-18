@@ -5,6 +5,7 @@ package com.zz.business.service.impl;/**
 import com.zz.business.dao.LeBusinessDetailMapper;
 import com.zz.business.feign.PictureService;
 import com.zz.business.service.LeBusinessDetailService;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.QueryResponseResult;
 import com.zz.framework.common.model.response.QueryResult;
@@ -59,10 +60,10 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 		LeBusinessDetail.setStatus("1"); //审核中
 
 		int result = leBusinessDetailMapper.insert(LeBusinessDetail);
-		if (result == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if(result != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_CREATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESSDETAIL_CREATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//修改商家信息
@@ -76,10 +77,10 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 		leBusinessDetail.setStatus("审核中"); //审核中
 		leBusinessDetail.setModifitime(LocalDateTime.now());
 		int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail);
-		if (updateResult == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (updateResult != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_CREATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESSDETAIL_CREATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//对商家信息进行审核通过
@@ -93,10 +94,10 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 		leBusinessDetail1.setStatus("审核通过");
 		leBusinessDetail1.setModifitime(LocalDateTime.now());
 		int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail1);
-		if (updateResult == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (updateResult != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//对商家信息进行审核不通过
@@ -110,10 +111,10 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 		leBusinessDetail1.setStatus("审核不通过（" + reason + ")");
 		leBusinessDetail1.setModifitime(LocalDateTime.now());
 		int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail1);
-		if (updateResult == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if(updateResult != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//对商家下架处理
@@ -127,10 +128,10 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 		leBusinessDetail1.setStatus("下架处理");
 		leBusinessDetail1.setModifitime(LocalDateTime.now());
 		int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail1);
-		if (updateResult == 1){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (updateResult != 1){
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
 		}
-		return new ResponseResult(BusinessCode.BUSINESSDETAIL_UPDATE_FALSE);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
 
 	//删除商家图片
@@ -144,6 +145,8 @@ public class LeBusinessDetailServiceImpl implements LeBusinessDetailService {
 				int updateResult = leBusinessDetailMapper.updateByPrimaryKey(leBusinessDetail);
 				if (delResult && updateResult > 0) return new ResponseResult(CommonCode.SUCCESS);
 			}
+		}else {
+			ExceptionCast.cast(BusinessCode.BUSINESSDETAIL_DELETE_PICTURE_FALSE);
 		}
 		return new ResponseResult(BusinessCode.BUSINESSDETAIL_DELETE_PICTURE_FALSE);
 	}

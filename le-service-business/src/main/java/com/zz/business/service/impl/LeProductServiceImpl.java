@@ -9,6 +9,7 @@ import com.zz.business.dao.LeProductMapper;
 import com.zz.business.dao.LeProductPicurlMapper;
 import com.zz.business.feign.PictureService;
 import com.zz.business.service.*;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.*;
 import com.zz.framework.domain.business.*;
 import com.zz.framework.domain.business.ext.LeProductMenuNode;
@@ -72,15 +73,27 @@ public class LeProductServiceImpl implements LeProductService {
 
 	//查找某一个商品所有的信息 包括图片 菜单 商品信息
 	@Override
-	public GetLeProductPicMenuExtResult getLeProduct(int id) {
+	public GetLeProductPicMenuExtResult getLeProduct(int id,int uid) {
 		LeProduct leProduct = leProductMapper.selectByPrimaryKey(id);
 		if (leProduct == null ){
-			return  new GetLeProductPicMenuExtResult(ProductCode.PRODUCT_NOTCOMPLETE,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_NOTCOMPLETE);
+		}
+		List<Integer> hasBarginPidsToday = new ArrayList<>();
+		if (uid != 0){
+			List<Integer> pids = new ArrayList<>();
+			pids.add(id);
+			List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
+			if (listByPidUidDate.size() >0){
+				hasBarginPidsToday = listByPidUidDate.parallelStream().map(LeBargainLog::getPid).collect(Collectors.toList());
+			}
+		}
+		if (leProduct.getIssale() != 3 && leProduct.getIssale() != 4 && hasBarginPidsToday.size()==1){
+			leProduct.setIssale(2);
 		}
 		List<LeProductMenuNode> productMenuByPid = leProductMenudetailService.getProductMenuByPid(id);
 		List<LeProductPicurl> productUrlByPid = leProductUrlService.getProductUrlByPid(id);
 		if ( productMenuByPid.size() == 0 || productUrlByPid.size() == 0){
-			return  new GetLeProductPicMenuExtResult(ProductCode.PRODUCT_NOTEXIT,null);
+			ExceptionCast.cast(ProductCode.PRODUCT_NOTEXIT);
 		}
 		LeProductPicMenuExt leProductPicMenuExt = new LeProductPicMenuExt();
 		leProductPicMenuExt.setLeProduct(leProduct);
@@ -193,7 +206,7 @@ public class LeProductServiceImpl implements LeProductService {
 		List<Integer> finalHasBarginPidsToday = hasBarginPidsToday;
 		leProducts.stream().forEach(item -> {
 			if (finalHasBarginPidsToday.size() > 0){
-				if (item.getIssale() != 3 && finalHasBarginPidsToday.contains(item.getId())){
+				if (item.getIssale() != 3 && item.getIssale() != 4 && finalHasBarginPidsToday.contains(item.getId())){
 					item.setIssale(2);
 				}
 			}
@@ -220,10 +233,13 @@ public class LeProductServiceImpl implements LeProductService {
 	@Override
 	public ResponseResult createLeProduct(LeProduct leProduct) {
 		int result = leProductMapper.insert(leProduct);
-		if (result == 1){
+		if (result != 1){
+			ExceptionCast.cast(ProductCode.PRODUCT_CREATE_FALSE);
+		}
+		else {
 			return new ResponseResult(CommonCode.SUCCESS);
 		}
-		return new ResponseResult(ProductCode.PRODUCT_CREATE_FALSE);
+		return new ResponseResult(CommonCode.FAIL);
 	}
 
 	//保存商家的商品主要信息
@@ -233,7 +249,7 @@ public class LeProductServiceImpl implements LeProductService {
 			//根据商家id查询是否存在
 			LeBusinessDetail leBusinessDetail = leBusinessDetailService.getLeBusinessDetail(bid);
 			if (leBusinessDetail == null){
-				return new ResponseResult(ProductCode.PRODUCT_BID_NOTEXIT);
+				ExceptionCast.cast(ProductCode.PRODUCT_BID_NOTEXIT);
 			}
 			leProduct.setBid(bid);
 			if ( leProduct.getId()== null || leProduct.getId() == 0){
@@ -244,7 +260,7 @@ public class LeProductServiceImpl implements LeProductService {
 				List<LeProduct> leProducts = leProductMapper.selectByExample(example);
 				//商品名称存在
 				if(leProducts.size() > 0){
-					return new ResponseResult(ProductCode.PRODUCT_NAME_EXIT);
+					ExceptionCast.cast(ProductCode.PRODUCT_NAME_EXIT);
 				}
 				//商品名称不存在，创建新商品
 				return createLeProduct(leProduct);
@@ -261,7 +277,7 @@ public class LeProductServiceImpl implements LeProductService {
 				localLeProduct.setStatus("审核中");
 				int update = leProductMapper.updateByPrimaryKey(localLeProduct);
 				if (update == 0){
-					return new ResponseResult(ProductCode.PRODUCT_UPDATE_ERROR);
+					ExceptionCast.cast(ProductCode.PRODUCT_UPDATE_ERROR);
 				}
 				return new ResponseResult(CommonCode.SUCCESS);
 			}
@@ -277,13 +293,14 @@ public class LeProductServiceImpl implements LeProductService {
 			//先查pid
 			LeProduct leProduct = leProductMapper.selectByPrimaryKey(pid);
 			if (leProduct == null){
-				return new ResponseResult(ProductCode.PRODUCT_NOTEXIT);
+				ExceptionCast.cast(ProductCode.PRODUCT_NOTEXIT);
 			}
 			leProductMenudetails.parallelStream().forEach(item -> item.setPid(pid));
 			return leProductMenudetailService.saveProductMenu(leProductMenudetails);
 		}else {
-			return  new ResponseResult(ProductCode.PRODUCT_CHECK_MENU_ERROR);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_MENU_ERROR);
 		}
+		return new ResponseResult(CommonCode.FAIL);
 
 	}
 
@@ -293,15 +310,16 @@ public class LeProductServiceImpl implements LeProductService {
 			//先查pid
 			LeProduct leProduct = leProductMapper.selectByPrimaryKey(pid);
 			if (leProduct == null){
-				return new ResponseResult(ProductCode.PRODUCT_NOTEXIT);
+				ExceptionCast.cast(ProductCode.PRODUCT_NOTEXIT);
 			}
 			//批量更新图片记录
 //			return leProductUrlService.saveLeProductPicurls(leProductPicurls);
 			//更新某一个图片记录
 			return leProductUrlService.saveLeProductPicurl(leProductPicurl);
 		}else {
-			return  new ResponseResult(ProductCode.PRODUCT_CHECK_MENU_ERROR);
+			ExceptionCast.cast(ProductCode.PRODUCT_CHECK_MENU_ERROR);
 		}
+		return  new ResponseResult(CommonCode.FAIL);
 	}
 
 	//删除商品图片
@@ -331,7 +349,7 @@ public class LeProductServiceImpl implements LeProductService {
 			pids.add(pid);
 			List<LeBargainLog> listByPidUidDate = leBargainLogService.getListByPidUidDate(pids, uid, LocalDate.now().toString());
 			if (listByPidUidDate.size()>0){
-				return new ResponseResultWithData(ProductCode.PRODUCT_BARGAIN_AGAIN_ERROR,null);
+				ExceptionCast.cast(ProductCode.PRODUCT_BARGAIN_AGAIN_ERROR);
 			}
 			BigDecimal originalprice = leProduct.getOriginalprice(); //原价
 			BigDecimal bargainprice = leProduct.getBargainprice();//砍完之后的价格
@@ -359,19 +377,29 @@ public class LeProductServiceImpl implements LeProductService {
 			return new ResponseResultWithData(CommonCode.SUCCESS,data);
 		}else {
 			log.info("砍价===商品不存在");
-			return new ResponseResultWithData(CommonCode.FAIL,null);
+			ExceptionCast.cast(CommonCode.FAIL);
 		}
-
+		return new ResponseResultWithData(CommonCode.FAIL,null);
 	}
 
 	@Override
 	public ResponseResult updateProductIsSaleByPid(int pid, int issale) {
 		int i = leProductMapper.updateIssale(pid, issale);
-		if (i>0){
-			return new ResponseResult(CommonCode.SUCCESS);
+		if (i <= 0){
+			ExceptionCast.cast(CommonCode.FAIL);
 		}
-		return new ResponseResult(CommonCode.FAIL);
+		return new ResponseResult(CommonCode.SUCCESS);
 	}
+
+	@Override
+	public ResponseResult updateProductIsSaleToOne(int pid) {
+		int i = leProductMapper.updateIssaleToOne(pid);
+		if (i<=0){
+			ExceptionCast.cast(CommonCode.FAIL);
+		}
+		return new ResponseResult(CommonCode.SUCCESS);
+	}
+
 
 	//根据原价格与砍价后价格的对比 得出百分比 在获取对应的
 	public  BigDecimal getBargainPrice(BigDecimal originalprice, BigDecimal bargainprice){

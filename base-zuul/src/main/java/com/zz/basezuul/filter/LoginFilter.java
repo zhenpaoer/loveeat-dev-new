@@ -36,6 +36,7 @@ public class LoginFilter extends ZuulFilter {
         IGNORE_URIS.add("/api/provider/hi");
         IGNORE_URIS.add("/api/business/product/allforhome");
         IGNORE_URIS.add("/api/business/product/getbyid");
+        IGNORE_URIS.add("/api/business/product/updateProductIsSaleToOne");
         IGNORE_URIS.add("/api/business/product/hi");
         IGNORE_URIS.add("/api/business/businessdetail/getBusDeById");
         IGNORE_URIS.add("/api/business/businessdetail/getBusDeList");

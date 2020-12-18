@@ -5,6 +5,7 @@ package com.zz.business.service.impl;/**
 import com.alibaba.druid.util.StringUtils;
 import com.zz.business.dao.LeProductMenudetailMapper;
 import com.zz.business.service.LeProductMenudetailService;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.domain.business.LeProduct;
@@ -56,12 +57,12 @@ public class LeProductMenudetailServiceImpl implements LeProductMenudetailServic
 			List<LeProductMenudetail> localLeProductMenudetails = leProductMenudetailMapper.selectByExample(example);
 			if (localLeProductMenudetails.size()>0){
 				//本地存在
-				new ResponseResult(ProductMenuDetailCode.PRODUCTMENU_NAME_EXIT);
+				ExceptionCast.cast(ProductMenuDetailCode.PRODUCTMENU_NAME_EXIT);
 			}
 
 			int insert = leProductMenudetailMapper.insert(title);
 			if (insert == 0){
-				return new ResponseResult(ProductMenuDetailCode.PRODUCTMENU_CREATE_FALSE);
+				ExceptionCast.cast(ProductMenuDetailCode.PRODUCTMENU_CREATE_FALSE);
 			}
 			//获取父id
 			Integer id = title.getId();
@@ -70,7 +71,7 @@ public class LeProductMenudetailServiceImpl implements LeProductMenudetailServic
 			//批量插入
 			int i = leProductMenudetailMapper.insertList(items);
 			if (i == 0){
-				return new ResponseResult(ProductMenuDetailCode.PRODUCTMENU_CREATE_FALSE);
+				ExceptionCast.cast(ProductMenuDetailCode.PRODUCTMENU_CREATE_FALSE);
 			}
 			return new ResponseResult(CommonCode.SUCCESS);
 		}else {
@@ -79,14 +80,16 @@ public class LeProductMenudetailServiceImpl implements LeProductMenudetailServic
 			if (isIdExist){
 				int update = leProductMenudetailMapper.updateByPrimaryKey(title);
 				if (update == 0){
-					return  new ResponseResult(ProductMenuDetailCode.PRODUCTMENU_UPDATE_ERROR);
+					ExceptionCast.cast(ProductMenuDetailCode.PRODUCTMENU_UPDATE_ERROR);
 				}
 				items.parallelStream().forEach(item -> {
 					leProductMenudetailMapper.updateByPrimaryKey(item);
 				});
 				return new ResponseResult(CommonCode.SUCCESS);
+			}else {
+				ExceptionCast.cast(ProductMenuDetailCode.PRODUCTMENU_DARACHECK_ERROR);
 			}
-			return  new ResponseResult(ProductMenuDetailCode.PRODUCTMENU_DARACHECK_ERROR);
+			return  new ResponseResult(CommonCode.FAIL);
 		}
 	}
 }

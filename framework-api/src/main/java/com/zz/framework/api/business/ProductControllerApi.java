@@ -26,7 +26,7 @@ public interface ProductControllerApi {
 
 	//查询某一个商品信息
 	@ApiOperation("查询某一个商品")
-	public GetLeProductPicMenuExtResult getProductById(int id);
+	public GetLeProductPicMenuExtResult getProductById(int id,HttpServletRequest request);
 
 	//查询所有商品信息
 	@ApiOperation("查询所有商品")
@@ -59,4 +59,8 @@ public interface ProductControllerApi {
 	//更新商品状态
 	@ApiOperation("更新商品状态")
 	public ResponseResult updateProductIsSaleByPid(int pid,int issale);
+
+	//更新商品为砍价状态
+	@ApiOperation("更新商品为砍价状态")
+	public ResponseResult updateProductIsSaleToOne(int pid);
 }

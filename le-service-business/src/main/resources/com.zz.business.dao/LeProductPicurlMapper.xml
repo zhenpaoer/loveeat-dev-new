@@ -10,7 +10,7 @@
     <result column="picurl" jdbcType="VARCHAR" property="picurl" />
   </resultMap>
 
-  <!--<select id="getProductUrlByPid" parameterType="java.lang.Integer" resultType="com.zz.framework.domain.business.LeProductPicurl">
+  <select id="getProductUrlByPid" parameterType="java.lang.Integer" resultType="com.zz.framework.domain.business.LeProductPicurl">
     select id ,pid,picurl from le_product_picurl where pid = #{pid}
-  </select>-->
+  </select>
 </mapper>

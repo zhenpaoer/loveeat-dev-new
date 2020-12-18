@@ -4,6 +4,7 @@ package com.zz.business.service.impl;/**
 
 import com.zz.business.dao.LeProductPicurlMapper;
 import com.zz.business.service.LeProductUrlService;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.CommonCode;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.domain.business.LeProductPicurl;
@@ -107,12 +108,18 @@ public class LeProductUrlServiceImpl implements LeProductUrlService {
 			if (leProductPicurls.size() == 0){
 				int insert = leProductPicurlMapper.insert(leProductPicurl);
 				if (insert > 0) new ResponseResult(CommonCode.SUCCESS);
-				else new ResponseResult(ProductUrlCode.PRODUCTURL_CREATE_FALSE);
-			}else return new ResponseResult(ProductUrlCode.PRODUCTURL_UPDATE_ERROR);
+				else ExceptionCast.cast(ProductUrlCode.PRODUCTURL_CREATE_FALSE);
+			}else ExceptionCast.cast(ProductUrlCode.PRODUCTURL_UPDATE_ERROR);
 		}
 		int update = leProductPicurlMapper.updateByPrimaryKey(leProductPicurl);
-		if (update > 0) return new ResponseResult(CommonCode.SUCCESS);
-		else  return new ResponseResult(ProductUrlCode.PRODUCTURL_UPDATE_ERROR);
+		if (update > 0){
+			return new ResponseResult(CommonCode.SUCCESS);
+		}
+		else{
+			ExceptionCast.cast(ProductUrlCode.PRODUCTURL_UPDATE_ERROR);
+		}
+		return new ResponseResult(CommonCode.FAIL);
+
 	}
 
 }

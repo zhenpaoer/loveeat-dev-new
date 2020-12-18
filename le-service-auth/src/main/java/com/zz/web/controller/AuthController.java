@@ -92,7 +92,7 @@ public class AuthController implements AuthControllerApi {
 		//删除redis中token
 		boolean b = authService.delToken(token);
 		if (!b){
-			return new JwtResult(CommonCode.FAIL,null);
+			ExceptionCast.cast(CommonCode.FAIL);
 		}
 		return new ResponseResult(CommonCode.SUCCESS);
 	}
@@ -104,7 +104,7 @@ public class AuthController implements AuthControllerApi {
 		//根据令牌从redis查询jwt
 		AuthToken userToken = authService.getUserToken(token);
 		if (userToken == null){
-			return new JwtResult(CommonCode.FAIL,null);
+			ExceptionCast.cast(CommonCode.FAIL);
 		}
 		return new JwtResult(CommonCode.SUCCESS,userToken.getJwt_token());
 	}

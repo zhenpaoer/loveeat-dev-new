@@ -2,6 +2,7 @@ package com.zz.web.controller;
 
 import com.zz.area.service.LeAreaService;
 import com.zz.framework.api.area.AreaControllerApi;
+import com.zz.framework.common.exception.ExceptionCast;
 import com.zz.framework.common.model.response.ResponseResult;
 import com.zz.framework.common.model.response.ResponseResultWithData;
 import com.zz.framework.domain.area.response.AreaCode;
@@ -32,10 +33,10 @@ public class LeAreaController  implements AreaControllerApi {
 	@RequestMapping("/insert")
 	public ResponseResult insertArea(int parentId, String area) {
 		if (parentId<0){
-			return new GetLeAreaResult(AreaCode.AREA_CHECK_ID_FALSE,null);
+			ExceptionCast.cast(AreaCode.AREA_CHECK_ID_FALSE);
 		}
 		if (StringUtils.isEmpty(area)){
-			return new GetLeAreaResult(AreaCode.AREA_CHECK_NAME_FALSE,null);
+			ExceptionCast.cast(AreaCode.AREA_CHECK_NAME_FALSE);
 		}
 		return leAreaService.insertArea(parentId,area);
 	}
@@ -45,7 +46,7 @@ public class LeAreaController  implements AreaControllerApi {
 	@GetMapping("/getAreaById")
 	public GetLeAreaResult getLeAreasById(int id) {
 		if (id<0){
-			return new GetLeAreaResult(AreaCode.AREA_CHECK_ID_FALSE,null);
+			ExceptionCast.cast(AreaCode.AREA_CHECK_ID_FALSE);
 		}
 		return leAreaService.getAreaById(id);
 	}
@@ -55,7 +56,7 @@ public class LeAreaController  implements AreaControllerApi {
 	@GetMapping("/getAllAndHotAreasByCityId")
 	public ResponseResultWithData getAllAndHotAreasByCittId(int id) {
 		if (id<0){
-			return new ResponseResultWithData(AreaCode.AREA_CHECK_ID_FALSE,null);
+			ExceptionCast.cast(AreaCode.AREA_CHECK_ID_FALSE);
 		}
 		return leAreaService.getAllAndHotAreasByCittId(id);
 	}
@@ -71,7 +72,7 @@ public class LeAreaController  implements AreaControllerApi {
 	@RequestMapping("/updateAreaSearchCountById")
 	public ResponseResult updateAreaSearchCountById(int id, int searchcount) {
 		if (id<0 || searchcount<0){
-			return new ResponseResult(AreaCode.AREA_CHECK_ID_FALSE);
+			ExceptionCast.cast(AreaCode.AREA_CHECK_ID_FALSE);
 		}
 		return leAreaService.updateAreaSearchCountById(id,searchcount);
 	}

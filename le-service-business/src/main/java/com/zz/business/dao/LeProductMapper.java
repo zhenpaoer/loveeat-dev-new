@@ -46,4 +46,7 @@ public interface LeProductMapper extends Mymapper<LeProduct> {
 
 	@Update("update le_product set issale = #{issale} where id = #{pid}")
 	int updateIssale(int pid,int issale);
+
+	@Update("update le_product set issale = 1 where id = #{pid}")
+	int updateIssaleToOne(int pid);
 }
