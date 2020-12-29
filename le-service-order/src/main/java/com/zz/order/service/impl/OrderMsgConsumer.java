@@ -67,8 +67,8 @@ public class OrderMsgConsumer {
 					int closeOrderResult = leOrderMapper.closeOrder(order.getId());
 					if (closeOrderResult>0){
 						//修改商品状态为销售中
-						ResponseResult responseResult = businessService.updateProductIsSaleToOne(order.getPid());
-						if (responseResult.getCode() == 10000){
+//						ResponseResult responseResult = businessService.updateProductIsSaleToOne(order.getPid());
+//						if (responseResult.getCode() == 10000){
 							//记录日志
 							String logContent = "uid=" + order.getUid() + "用户未在规定时间内支付，已关闭订单";
 							log.info(logContent);
@@ -79,7 +79,7 @@ public class OrderMsgConsumer {
 									.updateTime(LocalDateTime.now())
 									.build();
 							operateLogMapper.insertOrderLog(log);
-						}
+//						}
 					}else {
 						log.info("关单失败");
 					}

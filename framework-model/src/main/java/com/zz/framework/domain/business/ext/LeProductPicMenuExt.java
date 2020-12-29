@@ -2,6 +2,7 @@ package com.zz.framework.domain.business.ext;/**
  * Created by zhangzhen on 2020/5/16
  */
 
+import com.zz.framework.domain.business.LeBusinessDetail;
 import com.zz.framework.domain.business.LeProduct;
 import com.zz.framework.domain.business.LeProductMenudetail;
 import com.zz.framework.domain.business.LeProductPicurl;
@@ -18,6 +19,8 @@ import java.util.List;
  **/
 @Data
 public class LeProductPicMenuExt  {
+	boolean isMineOrder = false; 				//当被下单后 是否是自己的订单
+	LeBusinessDetail leBusinessDetail;			//店家信息
 	LeProduct leProduct ;						//商品主要信息
 	List<LeProductPicurl> productPicurls;		//商品图片url
 	List<LeProductMenuNode> productMenuNodes; 	//商品菜单明细 每个菜单里面包括多个子项，是树形的，可以有多个菜单 构成一个大菜单

@@ -7,6 +7,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zz.business.dao.LeProductMapper;
 import com.zz.business.dao.LeProductPicurlMapper;
+import com.zz.business.feign.OrderService;
 import com.zz.business.feign.PictureService;
 import com.zz.business.service.*;
 import com.zz.framework.common.exception.ExceptionCast;
@@ -66,6 +67,8 @@ public class LeProductServiceImpl implements LeProductService {
 	LeBargainLogServiceImpl leBargainLogService;
 	@Autowired
 	LeBargainRuleService leBargainRuleService;
+	@Autowired
+	OrderService orderService;
 	public ConcurrentHashMap<Integer,LimitPirce> limitPirceMap = new ConcurrentHashMap<>();
 
 
@@ -75,6 +78,7 @@ public class LeProductServiceImpl implements LeProductService {
 	@Override
 	public GetLeProductPicMenuExtResult getLeProduct(int id,int uid) {
 		LeProduct leProduct = leProductMapper.selectByPrimaryKey(id);
+		boolean ordered = false;
 		if (leProduct == null ){
 			ExceptionCast.cast(ProductCode.PRODUCT_NOTCOMPLETE);
 		}
@@ -86,6 +90,11 @@ public class LeProductServiceImpl implements LeProductService {
 			if (listByPidUidDate.size() >0){
 				hasBarginPidsToday = listByPidUidDate.parallelStream().map(LeBargainLog::getPid).collect(Collectors.toList());
 			}
+
+			//查询这个商品今天有没有被下单
+			//如果被下单了 是不是这个用户的
+			ordered = orderService.isOrdered(id, uid);
+
 		}
 		if (leProduct.getIssale() != 3 && leProduct.getIssale() != 4 && hasBarginPidsToday.size()==1){
 			leProduct.setIssale(2);
@@ -95,10 +104,13 @@ public class LeProductServiceImpl implements LeProductService {
 		if ( productMenuByPid.size() == 0 || productUrlByPid.size() == 0){
 			ExceptionCast.cast(ProductCode.PRODUCT_NOTEXIT);
 		}
+		LeBusinessDetail leBusinessDetail = leBusinessDetailService.getLeBusinessDetail(leProduct.getBid());
 		LeProductPicMenuExt leProductPicMenuExt = new LeProductPicMenuExt();
+		leProductPicMenuExt.setLeBusinessDetail(leBusinessDetail);
 		leProductPicMenuExt.setLeProduct(leProduct);
 		leProductPicMenuExt.setProductMenuNodes(productMenuByPid);
 		leProductPicMenuExt.setProductPicurls(productUrlByPid);
+		leProductPicMenuExt.setMineOrder(ordered);
 		GetLeProductPicMenuExtResult productDetail = new GetLeProductPicMenuExtResult(CommonCode.SUCCESS,leProductPicMenuExt);
 		return productDetail;
 	}

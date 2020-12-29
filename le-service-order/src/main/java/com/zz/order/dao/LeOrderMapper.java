@@ -25,6 +25,9 @@ public interface LeOrderMapper extends Mymapper<LeOrder> {
 	@Select("select * from le_order where pid = #{pid} and createdate = #{createDate} and status != -1")
 	public LeOrder getByPidAndDate(int pid,LocalDate createDate);
 
+	@Select("select * from le_order where pid = #{pid} and uid = #{uid} and createdate = #{createDate} and status != -1")
+	public LeOrder getByPidAndUidAndDate(int pid,int uid,LocalDate createDate);
+
 	@Select("select * from le_order where uid = #{uid} order by createtime desc")
 	public List<LeOrder> getByUid(int uid);
 

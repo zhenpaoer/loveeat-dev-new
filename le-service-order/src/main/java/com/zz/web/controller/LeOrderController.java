@@ -20,6 +20,17 @@ import javax.servlet.http.HttpServletRequest;
 public class LeOrderController  {
 	@Autowired
 	OrderService orderService;
+
+	//查询这个商品今天是否被这个用户下单
+	@GetMapping("/isOrdered")
+	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS','ROLE_USER')")
+	public boolean isOrdered(@RequestParam(value = "pid",required = true,defaultValue = "0" )int pid,@RequestParam(value = "uid",required = true,defaultValue = "0")int uid){
+		if (pid <= 0 || uid <= 0){
+			ExceptionCast.cast(AuthCode.AUTH_LOGIN_ERROR);
+		}
+		return orderService.isOrdered(pid,uid);
+	}
+
 	//查询用户的订单
 	@GetMapping("/getordersbyuid")
 	@PreAuthorize(value="isAuthenticated() and  hasAnyRole('ROLE_ADMIN','ROLE_BUSINESS','ROLE_USER')")

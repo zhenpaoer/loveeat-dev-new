@@ -91,8 +91,8 @@ public class OrderServiceImpl implements OrderService {
 				value = "uid = " + uid ;
 				stringRedisTemplate.boundValueOps(key).set(value,orderSeconds, TimeUnit.SECONDS);
 				//修改商品状态为销售中
-				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4);
-				if (responseResult.getCode() == 10000){
+//				ResponseResult responseResult = businessService.updateProductIsSaleByPid(pid, 4);
+//				if (responseResult.getCode() == 10000){
 					//下订单
 					SnowflakeIdWorker snowflakeIdWorker = new SnowflakeIdWorker(1,1);
 					String tradeNo = snowflakeIdWorker.nextId()+"";
@@ -126,9 +126,10 @@ public class OrderServiceImpl implements OrderService {
 					}else {
 						ExceptionCast.cast(CommonCode.FAIL);
 					}
-				}else {
-					ExceptionCast.cast(CommonCode.FAIL);
-				}
+//				}
+//				else {
+//					ExceptionCast.cast(CommonCode.FAIL);
+//				}
 			}else {
 				//存在
 				ExceptionCast.cast(OrderCode.ORDER_PROCESSING);
@@ -164,5 +165,15 @@ public class OrderServiceImpl implements OrderService {
 			map.put("data",byUid);
 			return new ResponseResultWithData(CommonCode.SUCCESS,map);
 		}
+	}
+
+	@Override
+	//查询这个商品今天是否被这个用户下单
+	public boolean isOrdered(int pid, int uid) {
+		LeOrder order = leOrderMapper.getByPidAndUidAndDate(pid, uid, LocalDate.now());
+		if (order != null){
+			return true;
+		}
+		return false;
 	}
 }
