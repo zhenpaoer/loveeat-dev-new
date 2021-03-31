@@ -41,7 +41,7 @@
         <spring-cloud.version>Greenwich.SR5</spring-cloud.version>
         <zipkin.version>2.10.1</zipkin.version>
         <spring-boot-admin.version>2.1.5</spring-boot-admin.version>
-        <guava.version>27.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <spring-security-crypto>5.1.5.RELEASE</spring-security-crypto>
         <spring-security-jwt>1.0.10.RELEASE</spring-security-jwt>
         <commons-io>2.6</commons-io>
