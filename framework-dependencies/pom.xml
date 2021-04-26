@@ -44,7 +44,7 @@
         <guava.version>27.1-jre</guava.version>
         <spring-security-crypto>5.1.5.RELEASE</spring-security-crypto>
         <spring-security-jwt>1.0.10.RELEASE</spring-security-jwt>
-        <commons-io>2.6</commons-io>
+        <commons-io>2.7</commons-io>
         <httpclient>4.5.8</httpclient>
         <zip4j>2.1.1</zip4j>
         <fastjson>1.2.57</fastjson>
