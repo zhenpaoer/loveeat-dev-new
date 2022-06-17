@@ -47,7 +47,7 @@
         <commons-io>2.6</commons-io>
         <httpclient>4.5.8</httpclient>
         <zip4j>2.1.1</zip4j>
-        <fastjson>1.2.57</fastjson>
+        <fastjson>1.2.83</fastjson>
         <spring-data-commons>2.1.8.RELEASE</spring-data-commons>
         <swagger2>2.7.0</swagger2>
         <swagger-ui>2.7.0</swagger-ui>
