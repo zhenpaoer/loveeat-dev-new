@@ -55,7 +55,7 @@
         <tk-mybatis>2.0.2</tk-mybatis>
         <pagehelper>1.2.10</pagehelper>
         <druid-spring-boot-starter>1.1.10</druid-spring-boot-starter>
-        <mysql-connector-java.version>5.1.45</mysql-connector-java.version>
+        <mysql-connector-java.version>8.0.28</mysql-connector-java.version>
         <minio>7.0.2</minio>
         <srpingboot-devtool>2.1.2.RELEASE</srpingboot-devtool>
         <logstash-logback.version>4.8</logstash-logback.version>
